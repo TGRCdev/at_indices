@@ -1,10 +1,6 @@
-use rayon::{
-    prelude::*,
-    iter::plumbing::Producer
-};
+use rayon::iter::plumbing::Producer;
 use std::slice::from_raw_parts_mut;
 
-use crate::prelude::*;
 use crate::AtIndicesData;
 
 impl<'a, T: Send> Producer for AtIndicesData<'a, &'a mut [T]>
@@ -39,5 +35,33 @@ impl<'a, T: Send> Producer for AtIndicesData<'a, &'a mut [T]>
                 end: split.1.len()
             }.into(),
         );
+    }
+}
+
+impl<'a, T: Send + Sync> Producer for AtIndicesData<'a, &'a [T]>
+{
+    type Item = &'a T;
+    type IntoIter = Self;
+
+    fn into_iter(self) -> Self::IntoIter {
+        return self;
+    }
+
+    fn split_at(self, index: usize) -> (Self, Self) {
+        let split = self.indices.split_at(index);
+        return (
+            AtIndicesData {
+                data: self.data,
+                indices: split.0,
+                start: 0,
+                end: split.0.len(),
+            }.into(),
+            AtIndicesData {
+                data: self.data,
+                indices: split.1,
+                start: 0,
+                end: split.1.len()
+            }.into(),
+        )
     }
 }

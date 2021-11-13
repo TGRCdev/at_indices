@@ -21,6 +21,11 @@ impl<'a, T: 'a> Iterator for AtIndicesData<'a, &'a [T]>
             return None;
         }
     }
+
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        let len = self.indices.len();
+        return (len, Some(len));
+    }
 }
 impl<'a, T: 'a> DoubleEndedIterator for AtIndicesData<'a, &'a [T]>
 {
@@ -52,6 +57,11 @@ impl<'a, T: 'a> Iterator for AtIndicesData<'a, &'a mut [T]>
         else {
             return None;
         }
+    }
+
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        let len = self.indices.len();
+        return (len, Some(len));
     }
 }
 impl<'a, T: 'a> DoubleEndedIterator for AtIndicesData<'a, &'a mut [T]>
