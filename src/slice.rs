@@ -12,6 +12,7 @@ impl<'a, T: 'a> AtIndices<'a> for [T]
     fn at_indices(&'a self, indices: &'a [usize]) -> AtIndicesIter<Self::SliceType> {
         { // Safety checks
             let mut indexset = HashSet::with_capacity(indices.len());
+            // TODO: Safety checks without heap allocation
             let len = self.len();
             indices.iter().for_each(|&i| {
                 assert!(i < len);
@@ -39,6 +40,7 @@ impl<'a, T: 'a> AtIndicesMut<'a> for [T]
     fn at_indices_mut(&'a mut self, indices: &'a [usize]) -> AtIndicesIterMut<Self::SliceType> {
         { // Safety checks
             let mut indexset = HashSet::with_capacity(indices.len());
+            // TODO: Safety checks without heap allocation
             let len = self.len();
             indices.iter().for_each(|&i| {
                 assert!(i < len);
@@ -69,6 +71,7 @@ impl<'a, T: 'a + Send> AtIndicesParMut<'a> for [T]
     fn par_at_indices_mut(&'a mut self, indices: &'a [usize]) -> crate::rayon::AtIndicesIterMutPar<'a, Self::SliceType> {
         { // Safety checks
             let mut indexset = HashSet::with_capacity(indices.len());
+            // TODO: Safety checks without heap allocation
             let len = self.len();
             indices.iter().for_each(|&i| {
                 assert!(i < len);
@@ -97,6 +100,7 @@ impl<'a, T: 'a + Send> AtIndicesPar<'a> for [T]
     fn par_at_indices(&'a self, indices: &'a [usize]) -> crate::rayon::AtIndicesIterPar<'a, Self::SliceType> {
         { // Safety checks
             let mut indexset = HashSet::with_capacity(indices.len());
+            // TODO: Safety checks without heap allocation
             let len = self.len();
             indices.iter().for_each(|&i| {
                 assert!(i < len);
