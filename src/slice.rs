@@ -1,4 +1,7 @@
-use crate::{ AtIndices, AtIndicesMut, AtIndicesIter, AtIndicesIterMut, AtIndicesData };
+use crate::{
+    prelude::*,
+    AtIndicesIter, AtIndicesIterMut, AtIndicesData
+};
 
 use std::collections::HashSet;
 
@@ -28,4 +31,33 @@ impl<'a, T: 'a> AtIndicesMut<'a> for [T]
         }.into()
     }
     
+}
+
+#[cfg(feature = "rayon")]
+impl<'a, T: 'a + Send> AtIndicesParMut<'a> for [T]
+{
+    type SliceType = &'a mut [T];
+
+    #[inline(always)]
+    fn par_at_indices_mut(&'a mut self, indices: &'a [usize]) -> crate::rayon::AtIndicesIterMutPar<'a, Self::SliceType> {
+        { // Safety checks
+            let mut indexset = HashSet::with_capacity(indices.len());
+            let len = self.len();
+            indices.iter().for_each(|&i| {
+                assert!(i < len);
+                assert!(indexset.insert(i));
+            });
+        }
+
+        return unsafe { self.par_at_indices_mut_unchecked(indices) };
+    }
+
+    unsafe fn par_at_indices_mut_unchecked(&'a mut self, indices: &'a [usize]) -> crate::rayon::AtIndicesIterMutPar<'a, Self::SliceType> {
+        AtIndicesData {
+            data: self,
+            indices,
+            start: 0,
+            end: indices.len()
+        }.into()
+    }
 }

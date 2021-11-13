@@ -1,4 +1,4 @@
-use crate::AtIndicesData;
+use crate::data::AtIndicesData;
 
 pub struct AtIndicesIter<'a, T>(AtIndicesData<'a, T>);
 

@@ -1,5 +1,5 @@
 mod data;
-pub use data::*;
+use data::*;
 
 mod iter;
 pub use iter::*;
@@ -23,5 +23,13 @@ pub trait AtIndicesMut<'a>
     unsafe fn at_indices_mut_unchecked(&'a mut self, indices: &'a [usize]) -> AtIndicesIterMut<Self::SliceType>;
 }
 
-
 mod slice;
+#[cfg(feature = "rayon")]
+mod rayon;
+
+pub mod prelude {
+    pub use super::{AtIndices, AtIndicesMut};
+
+    #[cfg(feature = "rayon")]
+    pub use crate::rayon::prelude::*;
+}
