@@ -1,15 +1,15 @@
-use crate::data::AtIndicesData;
+use crate::data::SelectIndicesBase;
 
-pub struct AtIndicesIterMut<'a, T>(AtIndicesData<'a, T>);
+pub struct SelectIndicesIterMut<'a, T>(SelectIndicesBase<'a, T>);
 
-impl<'a, T> From<AtIndicesData<'a, T>> for AtIndicesIterMut<'a, T>
+impl<'a, T> From<SelectIndicesBase<'a, T>> for SelectIndicesIterMut<'a, T>
 {
-    fn from(d: AtIndicesData<'a, T>) -> Self {
+    fn from(d: SelectIndicesBase<'a, T>) -> Self {
         Self(d)
     }
 }
 
-impl<'a, T> Iterator for AtIndicesIterMut<'a, &'a mut [T]>
+impl<'a, T> Iterator for SelectIndicesIterMut<'a, &'a mut [T]>
 {
     type Item = &'a mut T;
 
@@ -22,11 +22,11 @@ impl<'a, T> Iterator for AtIndicesIterMut<'a, &'a mut [T]>
     }
 }
 
-impl<'a, T> DoubleEndedIterator for AtIndicesIterMut<'a, &'a mut [T]>
+impl<'a, T> DoubleEndedIterator for SelectIndicesIterMut<'a, &'a mut [T]>
 {
     fn next_back(&mut self) -> Option<Self::Item> {
         self.0.next_back()
     }
 }
 
-impl<'a, T> ExactSizeIterator for AtIndicesIterMut<'a, &'a mut [T]> {}
+impl<'a, T> ExactSizeIterator for SelectIndicesIterMut<'a, &'a mut [T]> {}

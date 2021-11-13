@@ -1,7 +1,7 @@
-use at_indices::prelude::*;
+use select_indices::prelude::*;
 
 #[test]
-fn mutable_at_indices_test()
+fn mutable_select_indices_test()
 {
     let mut data = [
         0,0,9,0,0,
@@ -13,7 +13,7 @@ fn mutable_at_indices_test()
 
     let indices = [7,17,2,12,22];
 
-    data.at_indices_mut(&indices).enumerate().for_each(|(i, x)| *x = i+1);
+    data.select_indices_mut(&indices).enumerate().for_each(|(i, x)| *x = i+1);
 
     assert_eq!(
         data,
@@ -34,7 +34,7 @@ fn mutable_out_of_range_panic()
     let mut data = [1,2,3];
     let indices = [1,2,3];
 
-    data.at_indices_mut(&indices) // 3 is out of bounds: should panic
+    data.select_indices_mut(&indices) // 3 is out of bounds: should panic
         .eq(&[1,2,3]);
 }
 
@@ -45,18 +45,18 @@ fn mutable_repeated_index_panic()
     let mut data = [1,2,3];
     let indices = [1,1];
 
-    data.at_indices_mut(&indices) // Repeated index: should panic
+    data.select_indices_mut(&indices) // Repeated index: should panic
         .eq(&[2,2]);
 }
 
-#[cfg(feature = "rayon-iters")]
+#[cfg(feature = "rayon")]
 mod rayon
 {
-    use at_indices::prelude::*;
-    use rayon::prelude::*;
+    use select_indices::prelude::*;
+    use rayon_crate::prelude::*;
 
     #[test]
-    fn par_mutable_at_indices_test()
+    fn par_mutable_select_indices_test()
     {
         let mut data = [
             0,0,9,0,0,
@@ -68,7 +68,7 @@ mod rayon
 
         let indices = [7,17,2,12,22];
 
-        data.par_at_indices_mut(&indices).enumerate().for_each(|(i, x)| {
+        data.par_select_indices_mut(&indices).enumerate().for_each(|(i, x)| {
             *x = i+1;
         });
 
@@ -91,7 +91,7 @@ mod rayon
         let mut data = [1,2,3];
         let indices = [1,2,3];
 
-        data.par_at_indices_mut(&indices) // 3 is out of bounds: should panic
+        data.par_select_indices_mut(&indices) // 3 is out of bounds: should panic
             .eq(&[1,2,3]);
     }
 
@@ -102,7 +102,7 @@ mod rayon
         let mut data = [1,2,3];
         let indices = [1,1];
 
-        data.par_at_indices_mut(&indices) // Repeated index: should panic
+        data.par_select_indices_mut(&indices) // Repeated index: should panic
             .eq(&[2,2]);
     }
 }

@@ -1,4 +1,5 @@
-pub(crate) struct AtIndicesData<'a, T>
+//
+pub(crate) struct SelectIndicesBase<'a, T>
 {
     pub(crate) data: T,
     pub(crate) indices: &'a [usize],
@@ -6,7 +7,7 @@ pub(crate) struct AtIndicesData<'a, T>
     pub(crate) end: usize,
 }
 
-impl<'a, T: 'a> Iterator for AtIndicesData<'a, &'a [T]>
+impl<'a, T: 'a> Iterator for SelectIndicesBase<'a, &'a [T]>
 {
     type Item = &'a T;
 
@@ -27,7 +28,7 @@ impl<'a, T: 'a> Iterator for AtIndicesData<'a, &'a [T]>
         return (len, Some(len));
     }
 }
-impl<'a, T: 'a> DoubleEndedIterator for AtIndicesData<'a, &'a [T]>
+impl<'a, T: 'a> DoubleEndedIterator for SelectIndicesBase<'a, &'a [T]>
 {
     fn next_back(&mut self) -> Option<Self::Item> {
         if self.start < self.end
@@ -41,9 +42,9 @@ impl<'a, T: 'a> DoubleEndedIterator for AtIndicesData<'a, &'a [T]>
         }
     }
 }
-impl<'a, T: 'a> ExactSizeIterator for AtIndicesData<'a, &'a [T]> {}
+impl<'a, T: 'a> ExactSizeIterator for SelectIndicesBase<'a, &'a [T]> {}
 
-impl<'a, T: 'a> Iterator for AtIndicesData<'a, &'a mut [T]>
+impl<'a, T: 'a> Iterator for SelectIndicesBase<'a, &'a mut [T]>
 {
     type Item = &'a mut T;
 
@@ -64,7 +65,7 @@ impl<'a, T: 'a> Iterator for AtIndicesData<'a, &'a mut [T]>
         return (len, Some(len));
     }
 }
-impl<'a, T: 'a> DoubleEndedIterator for AtIndicesData<'a, &'a mut [T]>
+impl<'a, T: 'a> DoubleEndedIterator for SelectIndicesBase<'a, &'a mut [T]>
 {
     fn next_back(&mut self) -> Option<Self::Item> {
         if self.start < self.end
@@ -78,4 +79,4 @@ impl<'a, T: 'a> DoubleEndedIterator for AtIndicesData<'a, &'a mut [T]>
         }
     }
 }
-impl<'a, T: 'a> ExactSizeIterator for AtIndicesData<'a, &'a mut [T]> {}
+impl<'a, T: 'a> ExactSizeIterator for SelectIndicesBase<'a, &'a mut [T]> {}

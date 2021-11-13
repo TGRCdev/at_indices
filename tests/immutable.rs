@@ -1,7 +1,7 @@
-use at_indices::prelude::*;
+use select_indices::prelude::*;
 
 #[test]
-fn immutable_at_indices_test()
+fn immutable_select_indices_test()
 {
     let data = [
         0,0,2,0,1,
@@ -12,7 +12,7 @@ fn immutable_at_indices_test()
     let indices = [4, 2, 14, 12, 13];
 
     assert!(
-        data.at_indices(&indices).eq(&[1, 2, 3, 4, 5])
+        data.select_indices(&indices).eq(&[1, 2, 3, 4, 5])
     )
 }
 
@@ -23,7 +23,7 @@ fn immutable_out_of_range_panic()
     let data = [1,2,3];
     let indices = [1,2,3]; 
 
-    data.at_indices(&indices) // 3 is out of bounds: should panic
+    data.select_indices(&indices) // 3 is out of bounds: should panic
         .eq(&[1,2,3]);
 }
 
@@ -34,18 +34,18 @@ fn immutable_repeated_index_panic()
     let data = [1,2,3];
     let indices = [1,1];
 
-    data.at_indices(&indices) // Repeated index: should panic
+    data.select_indices(&indices) // Repeated index: should panic
         .eq(&[2,2]);
 }
 
-#[cfg(feature = "rayon-iters")]
+#[cfg(feature = "rayon")]
 mod rayon
 {
-    use at_indices::prelude::*;
-    use rayon::prelude::*;
+    use select_indices::prelude::*;
+    use rayon_crate::prelude::*;
 
     #[test]
-    fn par_immutable_at_indices_test()
+    fn par_immutable_select_indices_test()
     {
         let data = [
             0,0,2,0,1,
@@ -56,7 +56,7 @@ mod rayon
         let indices = [4, 2, 14, 12, 13];
 
         assert!(
-            data.par_at_indices(&indices).eq(&[1, 2, 3, 4, 5])
+            data.par_select_indices(&indices).eq(&[1, 2, 3, 4, 5])
         );
     }
 
@@ -67,7 +67,7 @@ mod rayon
         let data = [1,2,3];
         let indices = [1,2,3]; 
 
-        data.par_at_indices(&indices) // 3 is out of bounds: should panic
+        data.par_select_indices(&indices) // 3 is out of bounds: should panic
             .eq(&[1,2,3]);
     }
 
@@ -78,7 +78,7 @@ mod rayon
         let data = [1,2,3];
         let indices = [1,1];
 
-        data.par_at_indices(&indices) // Repeated index: should panic
+        data.par_select_indices(&indices) // Repeated index: should panic
             .eq(&[2,2]);
     }
 }

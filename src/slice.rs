@@ -1,15 +1,15 @@
 use crate::{
     prelude::*,
-    AtIndicesIter, AtIndicesIterMut, AtIndicesData
+    SelectIndicesIter, SelectIndicesIterMut, SelectIndicesBase
 };
 
 use std::collections::HashSet;
 
-impl<'a, T: 'a> AtIndices<'a> for [T]
+impl<'a, T: 'a> SelectIndices<'a> for [T]
 {
     type SliceType = &'a [T];
 
-    fn at_indices(&'a self, indices: &'a [usize]) -> AtIndicesIter<Self::SliceType> {
+    fn select_indices(&'a self, indices: &'a [usize]) -> SelectIndicesIter<Self::SliceType> {
         { // Safety checks
             let mut indexset = HashSet::with_capacity(indices.len());
             // TODO: Safety checks without heap allocation
@@ -20,11 +20,11 @@ impl<'a, T: 'a> AtIndices<'a> for [T]
             });
         }
 
-        return unsafe { self.at_indices_unchecked(indices) };
+        return unsafe { self.select_indices_unchecked(indices) };
     }
 
-    unsafe fn at_indices_unchecked(&'a self, indices: &'a [usize]) -> AtIndicesIter<Self::SliceType> {
-        AtIndicesData {
+    unsafe fn select_indices_unchecked(&'a self, indices: &'a [usize]) -> SelectIndicesIter<Self::SliceType> {
+        SelectIndicesBase {
             data: self,
             indices,
             start: 0,
@@ -33,11 +33,11 @@ impl<'a, T: 'a> AtIndices<'a> for [T]
     }
 }
 
-impl<'a, T: 'a> AtIndicesMut<'a> for [T]
+impl<'a, T: 'a> SelectIndicesMut<'a> for [T]
 {
     type SliceType = &'a mut [T];
 
-    fn at_indices_mut(&'a mut self, indices: &'a [usize]) -> AtIndicesIterMut<Self::SliceType> {
+    fn select_indices_mut(&'a mut self, indices: &'a [usize]) -> SelectIndicesIterMut<Self::SliceType> {
         { // Safety checks
             let mut indexset = HashSet::with_capacity(indices.len());
             // TODO: Safety checks without heap allocation
@@ -48,11 +48,11 @@ impl<'a, T: 'a> AtIndicesMut<'a> for [T]
             });
         }
 
-        return unsafe { self.at_indices_mut_unchecked(indices) };
+        return unsafe { self.select_indices_mut_unchecked(indices) };
     }
 
-    unsafe fn at_indices_mut_unchecked(&'a mut self, indices: &'a [usize]) -> AtIndicesIterMut<Self::SliceType> {
-        AtIndicesData {
+    unsafe fn select_indices_mut_unchecked(&'a mut self, indices: &'a [usize]) -> SelectIndicesIterMut<Self::SliceType> {
+        SelectIndicesBase {
             data: self,
             indices,
             start: 0,
@@ -62,13 +62,13 @@ impl<'a, T: 'a> AtIndicesMut<'a> for [T]
     
 }
 
-#[cfg(feature = "rayon-iters")]
-impl<'a, T: 'a + Send> AtIndicesParMut<'a> for [T]
+#[cfg(feature = "rayon")]
+impl<'a, T: 'a + Send> SelectIndicesParMut<'a> for [T]
 {
     type SliceType = &'a mut [T];
 
     #[inline(always)]
-    fn par_at_indices_mut(&'a mut self, indices: &'a [usize]) -> crate::rayon::AtIndicesIterMutPar<'a, Self::SliceType> {
+    fn par_select_indices_mut(&'a mut self, indices: &'a [usize]) -> crate::rayon::SelectIndicesIterMutPar<'a, Self::SliceType> {
         { // Safety checks
             let mut indexset = HashSet::with_capacity(indices.len());
             // TODO: Safety checks without heap allocation
@@ -79,11 +79,11 @@ impl<'a, T: 'a + Send> AtIndicesParMut<'a> for [T]
             });
         }
 
-        return unsafe { self.par_at_indices_mut_unchecked(indices) };
+        return unsafe { self.par_select_indices_mut_unchecked(indices) };
     }
 
-    unsafe fn par_at_indices_mut_unchecked(&'a mut self, indices: &'a [usize]) -> crate::rayon::AtIndicesIterMutPar<'a, Self::SliceType> {
-        AtIndicesData {
+    unsafe fn par_select_indices_mut_unchecked(&'a mut self, indices: &'a [usize]) -> crate::rayon::SelectIndicesIterMutPar<'a, Self::SliceType> {
+        SelectIndicesBase {
             data: self,
             indices,
             start: 0,
@@ -92,12 +92,12 @@ impl<'a, T: 'a + Send> AtIndicesParMut<'a> for [T]
     }
 }
 
-#[cfg(feature = "rayon-iters")]
-impl<'a, T: 'a + Send> AtIndicesPar<'a> for [T]
+#[cfg(feature = "rayon")]
+impl<'a, T: 'a + Send> SelectIndicesPar<'a> for [T]
 {
     type SliceType = &'a [T];
 
-    fn par_at_indices(&'a self, indices: &'a [usize]) -> crate::rayon::AtIndicesIterPar<'a, Self::SliceType> {
+    fn par_select_indices(&'a self, indices: &'a [usize]) -> crate::rayon::SelectIndicesIterPar<'a, Self::SliceType> {
         { // Safety checks
             let mut indexset = HashSet::with_capacity(indices.len());
             // TODO: Safety checks without heap allocation
@@ -108,11 +108,11 @@ impl<'a, T: 'a + Send> AtIndicesPar<'a> for [T]
             });
         }
 
-        return unsafe { self.par_at_indices_unchecked(indices) };
+        return unsafe { self.par_select_indices_unchecked(indices) };
     }
 
-    unsafe fn par_at_indices_unchecked(&'a self, indices: &'a [usize]) -> crate::rayon::AtIndicesIterPar<'a, Self::SliceType> {
-        AtIndicesData {
+    unsafe fn par_select_indices_unchecked(&'a self, indices: &'a [usize]) -> crate::rayon::SelectIndicesIterPar<'a, Self::SliceType> {
+        SelectIndicesBase {
             data: self,
             indices,
             start: 0,

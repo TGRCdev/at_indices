@@ -1,9 +1,9 @@
-use rayon::iter::plumbing::Producer;
+use rayon_crate::iter::plumbing::Producer;
 use std::slice::from_raw_parts_mut;
 
-use crate::AtIndicesData;
+use crate::SelectIndicesBase;
 
-impl<'a, T: Send> Producer for AtIndicesData<'a, &'a mut [T]>
+impl<'a, T: Send> Producer for SelectIndicesBase<'a, &'a mut [T]>
 {
     type Item = &'a mut T;
 
@@ -22,13 +22,13 @@ impl<'a, T: Send> Producer for AtIndicesData<'a, &'a mut [T]>
         ) };
         let split = self.indices.split_at(index); // TODO: Unchecked
         return (
-            AtIndicesData {
+            SelectIndicesBase {
                 data: refs.0,
                 indices: split.0,
                 start: 0,
                 end: split.0.len(),
             }.into(),
-            AtIndicesData {
+            SelectIndicesBase {
                 data: refs.1,
                 indices: split.1,
                 start: 0,
@@ -38,7 +38,7 @@ impl<'a, T: Send> Producer for AtIndicesData<'a, &'a mut [T]>
     }
 }
 
-impl<'a, T: Send + Sync> Producer for AtIndicesData<'a, &'a [T]>
+impl<'a, T: Send + Sync> Producer for SelectIndicesBase<'a, &'a [T]>
 {
     type Item = &'a T;
     type IntoIter = Self;
@@ -50,13 +50,13 @@ impl<'a, T: Send + Sync> Producer for AtIndicesData<'a, &'a [T]>
     fn split_at(self, index: usize) -> (Self, Self) {
         let split = self.indices.split_at(index);
         return (
-            AtIndicesData {
+            SelectIndicesBase {
                 data: self.data,
                 indices: split.0,
                 start: 0,
                 end: split.0.len(),
             }.into(),
-            AtIndicesData {
+            SelectIndicesBase {
                 data: self.data,
                 indices: split.1,
                 start: 0,
