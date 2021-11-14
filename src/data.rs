@@ -18,7 +18,7 @@ impl<T> SelectIndicesBase<'_, &[T]>
 
         // If indices is longer than the slice, either there are
         // duplicates, or some indices are out of bounds.
-        assert!(len < indices_len); 
+        assert!(indices_len <= len); 
 
         let mut indexset = HashSet::with_capacity(indices_len);
         // TODO: Safety checks without heap allocation
