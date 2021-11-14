@@ -1,6 +1,9 @@
 # select_indices
 
-![GitHub Workflow Status](https://img.shields.io/github/workflow/status/TGRCdev/select_indices/main) ![[crates.io](https://crates.io/crates/select_indices)](https://img.shields.io/crates/v/select_indices.svg) ![[docs.rs](https://docs.rs/select_indices)](https://img.shields.io/docsrs/select_indices) ![Crates.io](https://img.shields.io/crates/l/select_indices)
+![GitHub Workflow Status](https://img.shields.io/github/workflow/status/TGRCdev/select_indices/main)
+[![crates.io](https://img.shields.io/crates/v/select_indices.svg)](https://crates.io/crates/select_indices)
+[![docs.rs](https://img.shields.io/docsrs/select_indices)](https://docs.rs/select_indices)
+![Crates.io](https://img.shields.io/crates/l/select_indices)
 
 `select_indices` is a crate that provides iterators for seeking through a slice with a pre-made list of indices. It can simplify the readability of code and, in some cases, increase performance.
 
