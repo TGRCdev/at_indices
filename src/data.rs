@@ -1,4 +1,3 @@
-//
 pub(crate) struct SelectIndicesBase<'a, T>
 {
     pub(crate) data: T,

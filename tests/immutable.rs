@@ -38,6 +38,20 @@ fn immutable_repeated_index_panic()
         .eq(&[2,2]);
 }
 
+#[test]
+fn immutable_indexed()
+{
+    let data = vec![
+        11, 22, 33, 44, 55, 66, 77, 88,
+        99, 00, 11, 22, 33, 44, 55, 66,
+        77, 88, 99, 00, 11, 22, 33, 44
+    ];
+    
+    data.select_indices(&[4, 23, 11, 0, 19]).indexed().for_each(|(i, x)| {
+        println!("data[{:2}] = {:02}", i, x);
+    });
+}
+
 #[cfg(feature = "rayon")]
 mod rayon
 {
