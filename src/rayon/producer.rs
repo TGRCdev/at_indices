@@ -1,4 +1,4 @@
-use rayon_crate::iter::plumbing::Producer;
+use rayon::iter::plumbing::Producer;
 use std::slice::from_raw_parts_mut;
 
 use crate::SelectIndicesBase;

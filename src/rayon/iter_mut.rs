@@ -1,5 +1,5 @@
 use crate::data::SelectIndicesBase;
-use rayon_crate::{
+use rayon::{
     prelude::*,
     iter::plumbing::bridge,
 };
@@ -19,7 +19,7 @@ impl<'a, T: Send> ParallelIterator for SelectIndicesIterMutPar<'a, &'a mut [T]>
 
     fn drive_unindexed<C>(self, consumer: C) -> C::Result
     where
-        C: rayon_crate::iter::plumbing::UnindexedConsumer<Self::Item> {
+        C: rayon::iter::plumbing::UnindexedConsumer<Self::Item> {
         bridge(self, consumer)
     }
 }
@@ -30,11 +30,11 @@ impl<'a, T: Send> IndexedParallelIterator for SelectIndicesIterMutPar<'a, &'a mu
         self.0.indices.len()
     }
 
-    fn drive<C: rayon_crate::iter::plumbing::Consumer<Self::Item>>(self, consumer: C) -> C::Result {
+    fn drive<C: rayon::iter::plumbing::Consumer<Self::Item>>(self, consumer: C) -> C::Result {
         bridge(self, consumer)
     }
 
-    fn with_producer<CB: rayon_crate::iter::plumbing::ProducerCallback<Self::Item>>(self, callback: CB) -> CB::Output {
+    fn with_producer<CB: rayon::iter::plumbing::ProducerCallback<Self::Item>>(self, callback: CB) -> CB::Output {
         callback.callback(self.0)
     }
 }

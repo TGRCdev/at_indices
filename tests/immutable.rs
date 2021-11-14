@@ -42,7 +42,7 @@ fn immutable_repeated_index_panic()
 mod rayon
 {
     use select_indices::prelude::*;
-    use rayon_crate::prelude::*;
+    use rayon::prelude::*;
 
     #[test]
     fn par_immutable_select_indices_test()
