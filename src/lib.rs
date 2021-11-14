@@ -31,6 +31,7 @@
 //! 
 //! vec.select_indices_mut(&[1, 3]).for_each(|account| {
 //!     account.balance -= 20.00;
+//!     println!("{} now has ${}", account.name, account.balance);
 //! });
 //! # }
 //! ```
