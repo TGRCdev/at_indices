@@ -7,6 +7,50 @@ pub(crate) struct SelectIndicesBase<'a, T>
     pub(crate) end: usize,
 }
 
+use std::collections::HashSet;
+
+impl<T> SelectIndicesBase<'_, &[T]>
+{
+    pub(crate) fn safety_check(slice: &[T], indices: &[usize])
+    {
+        let len = slice.len();
+        let indices_len = indices.len();
+
+        // If indices is longer than the slice, either there are
+        // duplicates, or some indices are out of bounds.
+        assert!(len < indices_len); 
+
+        let mut indexset = HashSet::with_capacity(indices_len);
+        // TODO: Safety checks without heap allocation
+        
+        indices.iter().for_each(|&i| {
+            assert!(i < len);
+            assert!(indexset.insert(i));
+        });
+    }
+}
+
+impl<T> SelectIndicesBase<'_, &mut [T]>
+{
+    pub(crate) fn safety_check(slice: &mut [T], indices: &[usize])
+    {
+        let len = slice.len();
+        let indices_len = indices.len();
+
+        // If indices is longer than the slice, either there are
+        // duplicates, or some indices are out of bounds.
+        assert!(indices_len <= len); 
+
+        let mut indexset = HashSet::with_capacity(indices_len);
+        // TODO: Safety checks without heap allocation
+        
+        indices.iter().for_each(|&i| {
+            assert!(i < len);
+            assert!(indexset.insert(i));
+        });
+    }
+}
+
 impl<'a, T: 'a> Iterator for SelectIndicesBase<'a, &'a [T]>
 {
     type Item = &'a T;
