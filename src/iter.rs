@@ -66,6 +66,12 @@ impl<'a, T> SelectIndicesIter<'a, &'a [T]>
     /// ```
     pub fn indexed(self) -> Zip<Cloned<Iter<'a, usize>>, Self>
     {
-        return self.0.indices.iter().cloned().zip(self);
+        return self.0.indices[
+            self.0.start
+            ..
+            self.0.end
+            ].iter()
+            .cloned()
+            .zip(self);
     }
 }

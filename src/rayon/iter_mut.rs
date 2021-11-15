@@ -80,6 +80,12 @@ impl<'a, T: Send + Sync> SelectIndicesIterMutPar<'a, &'a mut [T]>
     /// ```
     pub fn indexed(self) -> Zip<Cloned<Iter<'a, usize>>, Self>
     {
-        return self.0.indices.par_iter().cloned().zip(self);
+        return self.0.indices[
+            self.0.start
+            ..
+            self.0.end
+            ].par_iter()
+            .cloned()
+            .zip(self);
     }
 }
