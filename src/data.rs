@@ -25,7 +25,8 @@ impl<T, I: Copy + Clone + PrimInt + ToPrimitive> SelectIndicesBase<'_, &[T], I>
         // TODO: Safety checks without heap allocation
         
         indices.iter().for_each(|&i| {
-            let i = i.to_usize().unwrap();
+            let i = i.to_usize()
+                .expect("select_indices was given indices that cannot be converted to usize!");
             assert!(i < len);
             assert!(indexset.insert(i));
         });
@@ -47,7 +48,8 @@ impl<T, I: Copy + Clone + PrimInt + ToPrimitive> SelectIndicesBase<'_, &mut [T],
         // TODO: Safety checks without heap allocation
         
         indices.iter().for_each(|&i| {
-            let i = i.to_usize().unwrap();
+            let i = i.to_usize()
+                .expect("select_indices was given indices that cannot be converted to usize!");
             assert!(i < len);
             assert!(indexset.insert(i));
         });
@@ -63,7 +65,12 @@ impl<'a, T: 'a, I: Copy + Clone + PrimInt + ToPrimitive> Iterator for SelectIndi
         {
             let ind = unsafe { *self.indices.get_unchecked(self.start) };
             self.start += 1;
-            return Some(unsafe { self.data.get_unchecked(ind.to_usize().unwrap()) });
+            return Some(unsafe { 
+                self.data.get_unchecked(
+                    ind.to_usize()
+                    .expect("select_indices was given indices that cannot be converted to usize!")
+                ) 
+            });
         }
         else {
             return None;
@@ -82,7 +89,12 @@ impl<'a, T: 'a, I: Copy + Clone + PrimInt + ToPrimitive> DoubleEndedIterator for
         {
             self.end -= 1;
             let ind = unsafe { * self.indices.get_unchecked(self.end) };
-            return Some(unsafe { self.data.get_unchecked(ind.to_usize().unwrap()) });
+            return Some(unsafe {
+                self.data.get_unchecked(
+                    ind.to_usize()
+                    .expect("select_indices was given indices that cannot be converted to usize!")
+                )
+            });
         }
         else {
             return None;
@@ -100,7 +112,12 @@ impl<'a, T: 'a, I: Copy + Clone + PrimInt + ToPrimitive> Iterator for SelectIndi
         {
             let ind = unsafe { *self.indices.get_unchecked(self.start) };
             self.start += 1;
-            return Some(unsafe { &mut *self.data.as_mut_ptr().add(ind.to_usize().unwrap()) });
+            return Some(unsafe {
+                &mut *self.data.as_mut_ptr().add(
+                    ind.to_usize()
+                    .expect("select_indices was given indices that cannot be converted to usize!")
+                )
+            });
         }
         else {
             return None;
@@ -119,7 +136,12 @@ impl<'a, T: 'a, I: Copy + Clone + PrimInt + ToPrimitive> DoubleEndedIterator for
         {
             self.end -= 1;
             let ind = unsafe { *self.indices.get_unchecked(self.end) };
-            return Some(unsafe { &mut *self.data.as_mut_ptr().add(ind.to_usize().unwrap()) });
+            return Some(unsafe {
+                &mut *self.data.as_mut_ptr().add(
+                    ind.to_usize()
+                    .expect("select_indices was given indices that cannot be converted to usize!")
+                )
+            });
         }
         else {
             return None;
