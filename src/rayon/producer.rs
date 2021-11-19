@@ -3,7 +3,9 @@ use std::slice::from_raw_parts_mut;
 
 use crate::SelectIndicesBase;
 
-impl<'a, T: Send> Producer for SelectIndicesBase<'a, &'a mut [T]>
+use num_traits::{ PrimInt, ToPrimitive };
+
+impl<'a, T: Send, I: Copy + Clone + PrimInt + ToPrimitive + Sync> Producer for SelectIndicesBase<'a, &'a mut [T], I>
 {
     type Item = &'a mut T;
 
@@ -38,7 +40,7 @@ impl<'a, T: Send> Producer for SelectIndicesBase<'a, &'a mut [T]>
     }
 }
 
-impl<'a, T: Send + Sync> Producer for SelectIndicesBase<'a, &'a [T]>
+impl<'a, T: Sync, I: Copy + Clone + PrimInt + ToPrimitive + Sync> Producer for SelectIndicesBase<'a, &'a [T], I>
 {
     type Item = &'a T;
     type IntoIter = Self;

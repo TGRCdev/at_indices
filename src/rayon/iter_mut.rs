@@ -8,16 +8,18 @@ use rayon::{
     },
 };
 
-pub struct SelectIndicesIterMutPar<'a, T>(pub(crate) SelectIndicesBase<'a, T>);
+use num_traits::{ PrimInt, ToPrimitive };
 
-impl<'a, T> From<SelectIndicesBase<'a, &'a mut [T]>> for SelectIndicesIterMutPar<'a, &'a mut [T]>
+pub struct SelectIndicesIterMutPar<'a, T, I: Copy + Clone + PrimInt + ToPrimitive + Sync>(pub(crate) SelectIndicesBase<'a, T, I>);
+
+impl<'a, T, I: Copy + Clone + PrimInt + ToPrimitive + Sync> From<SelectIndicesBase<'a, &'a mut [T], I>> for SelectIndicesIterMutPar<'a, &'a mut [T], I>
 {
-    fn from(d: SelectIndicesBase<'a, &'a mut [T]>) -> Self {
+    fn from(d: SelectIndicesBase<'a, &'a mut [T], I>) -> Self {
         Self(d)
     }
 }
 
-impl<'a, T: Send> ParallelIterator for SelectIndicesIterMutPar<'a, &'a mut [T]>
+impl<'a, T: Send, I: Copy + Clone + PrimInt + ToPrimitive + Sync> ParallelIterator for SelectIndicesIterMutPar<'a, &'a mut [T], I>
 {
     type Item = &'a mut T;
 
@@ -28,7 +30,7 @@ impl<'a, T: Send> ParallelIterator for SelectIndicesIterMutPar<'a, &'a mut [T]>
     }
 }
 
-impl<'a, T: Send> IndexedParallelIterator for SelectIndicesIterMutPar<'a, &'a mut [T]>
+impl<'a, T: Send, I: Copy + Clone + PrimInt + ToPrimitive + Sync> IndexedParallelIterator for SelectIndicesIterMutPar<'a, &'a mut [T], I>
 {
     fn len(&self) -> usize {
         self.0.indices.len()
@@ -43,7 +45,7 @@ impl<'a, T: Send> IndexedParallelIterator for SelectIndicesIterMutPar<'a, &'a mu
     }
 }
 
-impl<'a, T: Send + Sync> SelectIndicesIterMutPar<'a, &'a mut [T]>
+impl<'a, T: Send, I: Copy + Clone + PrimInt + ToPrimitive + Sync + Send> SelectIndicesIterMutPar<'a, &'a mut [T], I>
 {
     /// Return an iterator that outputs a tuple with
     /// each given index and its corresponding element
@@ -78,14 +80,14 @@ impl<'a, T: Send + Sync> SelectIndicesIterMutPar<'a, &'a mut [T]>
     /// );
     /// # }
     /// ```
-    pub fn indexed(self) -> Zip<Cloned<Iter<'a, usize>>, Self>
+    pub fn indexed(self) -> Zip<Cloned<Iter<'a, I>>, Self>
     {
         return self.0.indices[
             self.0.start
             ..
             self.0.end
             ].par_iter()
-            .cloned()
+            .cloned() // Remove this so that I does not need Send?
             .zip(self);
     }
 }

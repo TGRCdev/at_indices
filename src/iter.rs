@@ -3,16 +3,18 @@ use core::slice::Iter;
 
 use crate::data::SelectIndicesBase;
 
-pub struct SelectIndicesIter<'a, T>(pub(crate) SelectIndicesBase<'a, T>);
+use num_traits::{ PrimInt, ToPrimitive };
 
-impl<'a, T> From<SelectIndicesBase<'a, T>> for SelectIndicesIter<'a, T>
+pub struct SelectIndicesIter<'a, T, I: Copy + Clone + PrimInt + ToPrimitive>(pub(crate) SelectIndicesBase<'a, T, I>);
+
+impl<'a, T, I: Copy + Clone + PrimInt + ToPrimitive> From<SelectIndicesBase<'a, T, I>> for SelectIndicesIter<'a, T, I>
 {
-    fn from(d: SelectIndicesBase<'a, T>) -> Self {
+    fn from(d: SelectIndicesBase<'a, T, I>) -> Self {
         Self(d)
     }
 }
 
-impl<'a, T> Iterator for SelectIndicesIter<'a, &'a [T]>
+impl<'a, T, I: Copy + Clone + PrimInt + ToPrimitive> Iterator for SelectIndicesIter<'a, &'a [T], I>
 {
     type Item = &'a T;
 
@@ -25,16 +27,16 @@ impl<'a, T> Iterator for SelectIndicesIter<'a, &'a [T]>
     }
 }
 
-impl<'a, T> DoubleEndedIterator for SelectIndicesIter<'a, &'a [T]>
+impl<'a, T, I: Copy + Clone + PrimInt + ToPrimitive> DoubleEndedIterator for SelectIndicesIter<'a, &'a [T], I>
 {
     fn next_back(&mut self) -> Option<Self::Item> {
         self.0.next_back()
     }
 }
 
-impl<'a, T> ExactSizeIterator for SelectIndicesIter<'a, &'a [T]> {}
+impl<'a, T, I: Copy + Clone + PrimInt + ToPrimitive> ExactSizeIterator for SelectIndicesIter<'a, &'a [T], I> {}
 
-impl<'a, T> SelectIndicesIter<'a, &'a [T]>
+impl<'a, T, I: Copy + Clone + PrimInt + ToPrimitive> SelectIndicesIter<'a, &'a [T], I>
 {
     /// Return an iterator that outputs a tuple with
     /// each given index and its corresponding element
@@ -64,7 +66,7 @@ impl<'a, T> SelectIndicesIter<'a, &'a [T]>
     /// );
     /// # }
     /// ```
-    pub fn indexed(self) -> Zip<Cloned<Iter<'a, usize>>, Self>
+    pub fn indexed(self) -> Zip<Cloned<Iter<'a, I>>, Self>
     {
         return self.0.indices[
             self.0.start

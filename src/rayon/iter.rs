@@ -8,16 +8,18 @@ use rayon::{
     },
 };
 
-pub struct SelectIndicesIterPar<'a, T>(pub(crate) SelectIndicesBase<'a, T>);
+use num_traits::{ PrimInt, ToPrimitive };
 
-impl<'a, T> From<SelectIndicesBase<'a, &'a [T]>> for SelectIndicesIterPar<'a, &'a [T]>
+pub struct SelectIndicesIterPar<'a, T: Sync, I: Copy + Clone + PrimInt + ToPrimitive + Sync>(pub(crate) SelectIndicesBase<'a, T, I>);
+
+impl<'a, T: Sync, I: Copy + Clone + PrimInt + ToPrimitive + Sync> From<SelectIndicesBase<'a, &'a [T], I>> for SelectIndicesIterPar<'a, &'a [T], I>
 {
-    fn from(d: SelectIndicesBase<'a, &'a [T]>) -> Self {
+    fn from(d: SelectIndicesBase<'a, &'a [T], I>) -> Self {
         Self(d)
     }
 }
 
-impl<'a, T: Send + Sync> ParallelIterator for SelectIndicesIterPar<'a, &'a [T]>
+impl<'a, T: Sync, I: Copy + Clone + PrimInt + ToPrimitive + Sync> ParallelIterator for SelectIndicesIterPar<'a, &'a [T], I>
 {
     type Item = &'a T;
 
@@ -28,7 +30,7 @@ impl<'a, T: Send + Sync> ParallelIterator for SelectIndicesIterPar<'a, &'a [T]>
     }
 }
 
-impl<'a, T: Send + Sync> IndexedParallelIterator for SelectIndicesIterPar<'a, &'a [T]>
+impl<'a, T: Sync, I: Copy + Clone + PrimInt + ToPrimitive + Sync> IndexedParallelIterator for SelectIndicesIterPar<'a, &'a [T], I>
 {
     fn len(&self) -> usize {
         self.0.len()
@@ -43,7 +45,7 @@ impl<'a, T: Send + Sync> IndexedParallelIterator for SelectIndicesIterPar<'a, &'
     }
 }
 
-impl<'a, T: Send + Sync> SelectIndicesIterPar<'a, &'a [T]>
+impl<'a, T: Sync, I: Copy + Clone + PrimInt + ToPrimitive + Sync + Send> SelectIndicesIterPar<'a, &'a [T], I>
 {
     /// Return an iterator that outputs a tuple with
     /// each given index and its corresponding element
@@ -74,7 +76,7 @@ impl<'a, T: Send + Sync> SelectIndicesIterPar<'a, &'a [T]>
     /// );
     /// # }
     /// ```
-    pub fn indexed(self) -> Zip<Cloned<Iter<'a, usize>>, Self>
+    pub fn indexed(self) -> Zip<Cloned<Iter<'a, I>>, Self>
     {
         return self.0.indices[
             self.0.start

@@ -3,17 +3,19 @@ use crate::{
     SelectIndicesIter, SelectIndicesIterMut, SelectIndicesBase
 };
 
-impl<'a, T: 'a> SelectIndices<'a> for [T]
+use num_traits::{ PrimInt, ToPrimitive };
+
+impl<'a, T: 'a, I: Copy + Clone + PrimInt + ToPrimitive> SelectIndices<'a, I> for [T]
 {
     type SliceType = &'a [T];
 
-    fn select_indices(&'a self, indices: &'a [usize]) -> SelectIndicesIter<Self::SliceType> {
-        SelectIndicesBase::<Self::SliceType>::safety_check(self, indices);
+    fn select_indices(&'a self, indices: &'a [I]) -> SelectIndicesIter<Self::SliceType, I> {
+        SelectIndicesBase::<Self::SliceType, I>::safety_check(self, indices);
 
         return unsafe { self.select_indices_unchecked(indices) };
     }
 
-    unsafe fn select_indices_unchecked(&'a self, indices: &'a [usize]) -> SelectIndicesIter<Self::SliceType> {
+    unsafe fn select_indices_unchecked(&'a self, indices: &'a [I]) -> SelectIndicesIter<Self::SliceType, I> {
         SelectIndicesBase {
             data: self,
             indices,
@@ -23,17 +25,17 @@ impl<'a, T: 'a> SelectIndices<'a> for [T]
     }
 }
 
-impl<'a, T: 'a> SelectIndicesMut<'a> for [T]
+impl<'a, T: 'a, I: Copy + Clone + PrimInt + ToPrimitive> SelectIndicesMut<'a, I> for [T]
 {
     type SliceType = &'a mut [T];
 
-    fn select_indices_mut(&'a mut self, indices: &'a [usize]) -> SelectIndicesIterMut<Self::SliceType> {
-        SelectIndicesBase::<Self::SliceType>::safety_check(self, indices);
+    fn select_indices_mut(&'a mut self, indices: &'a [I]) -> SelectIndicesIterMut<Self::SliceType, I> {
+        SelectIndicesBase::<Self::SliceType, I>::safety_check(self, indices);
 
         return unsafe { self.select_indices_mut_unchecked(indices) };
     }
 
-    unsafe fn select_indices_mut_unchecked(&'a mut self, indices: &'a [usize]) -> SelectIndicesIterMut<Self::SliceType> {
+    unsafe fn select_indices_mut_unchecked(&'a mut self, indices: &'a [I]) -> SelectIndicesIterMut<Self::SliceType, I> {
         SelectIndicesBase {
             data: self,
             indices,
@@ -45,17 +47,17 @@ impl<'a, T: 'a> SelectIndicesMut<'a> for [T]
 }
 
 #[cfg(feature = "rayon")]
-impl<'a, T: 'a + Send> SelectIndicesParMut<'a> for [T]
+impl<'a, T: 'a + Send, I: Copy + Clone + PrimInt + ToPrimitive + Sync> SelectIndicesParMut<'a, I> for [T]
 {
     type SliceType = &'a mut [T];
 
-    fn par_select_indices_mut(&'a mut self, indices: &'a [usize]) -> crate::rayon::SelectIndicesIterMutPar<'a, Self::SliceType> {
-        SelectIndicesBase::<Self::SliceType>::safety_check(self, indices);
+    fn par_select_indices_mut(&'a mut self, indices: &'a [I]) -> crate::rayon::SelectIndicesIterMutPar<'a, Self::SliceType, I> {
+        SelectIndicesBase::<Self::SliceType, I>::safety_check(self, indices);
 
         return unsafe { self.par_select_indices_mut_unchecked(indices) };
     }
 
-    unsafe fn par_select_indices_mut_unchecked(&'a mut self, indices: &'a [usize]) -> crate::rayon::SelectIndicesIterMutPar<'a, Self::SliceType> {
+    unsafe fn par_select_indices_mut_unchecked(&'a mut self, indices: &'a [I]) -> crate::rayon::SelectIndicesIterMutPar<'a, Self::SliceType, I> {
         SelectIndicesBase {
             data: self,
             indices,
@@ -66,17 +68,17 @@ impl<'a, T: 'a + Send> SelectIndicesParMut<'a> for [T]
 }
 
 #[cfg(feature = "rayon")]
-impl<'a, T: 'a + Send> SelectIndicesPar<'a> for [T]
+impl<'a, T: 'a + Sync, I: Copy + Clone + PrimInt + ToPrimitive + Sync> SelectIndicesPar<'a, I> for [T]
 {
     type SliceType = &'a [T];
 
-    fn par_select_indices(&'a self, indices: &'a [usize]) -> crate::rayon::SelectIndicesIterPar<'a, Self::SliceType> {
-        SelectIndicesBase::<Self::SliceType>::safety_check(self, indices);
+    fn par_select_indices(&'a self, indices: &'a [I]) -> crate::rayon::SelectIndicesIterPar<'a, Self::SliceType, I> {
+        SelectIndicesBase::<Self::SliceType, I>::safety_check(self, indices);
 
         return unsafe { self.par_select_indices_unchecked(indices) };
     }
 
-    unsafe fn par_select_indices_unchecked(&'a self, indices: &'a [usize]) -> crate::rayon::SelectIndicesIterPar<'a, Self::SliceType> {
+    unsafe fn par_select_indices_unchecked(&'a self, indices: &'a [I]) -> crate::rayon::SelectIndicesIterPar<'a, Self::SliceType, I> {
         SelectIndicesBase {
             data: self,
             indices,

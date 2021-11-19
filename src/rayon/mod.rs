@@ -6,14 +6,16 @@ pub use iter::*;
 mod iter_mut;
 pub use iter_mut::*;
 
+use num_traits::{ PrimInt, ToPrimitive };
+
 /// Seek asynchronously through a shared slice with a list of indices.
 /// 
 /// SelectIndicesPar provides a [ParallelIterator](https://docs.rs/rayon/1.5.1/rayon/iter/trait.ParallelIterator.html)
 /// that can split a contiguous, immutable slice of objects
 /// (`&[T]`) into individual, shared references (`&T`).
-pub trait SelectIndicesPar<'a>
+pub trait SelectIndicesPar<'a, I: Copy + Clone + PrimInt + ToPrimitive + Sync>
 {
-    type SliceType: Sized;
+    type SliceType: Sized + Sync;
 
     /// Creates a [ParallelIterator](https://docs.rs/rayon/1.5.1/rayon/iter/trait.ParallelIterator.html)
     /// on the slice that seeks through and returns
@@ -27,7 +29,7 @@ pub trait SelectIndicesPar<'a>
     /// The iterator returned by this method is guaranteed to give out unique,
     /// shared references to the elements referenced by `indices`, and these
     /// references can only be used while the original slice is not dropped.
-    fn par_select_indices(&'a self, indices: &'a [usize]) -> SelectIndicesIterPar<'a, Self::SliceType>;
+    fn par_select_indices(&'a self, indices: &'a [I]) -> SelectIndicesIterPar<'a, Self::SliceType, I>;
     
     /// Creates a [ParallelIterator](https://docs.rs/rayon/1.5.1/rayon/iter/trait.ParallelIterator.html)
     /// on the slice that seeks through and returns
@@ -37,7 +39,7 @@ pub trait SelectIndicesPar<'a>
     /// This method is safe as long as the indices passed are in-bounds and
     /// do not have duplicates. Violating either of these will cause undefined
     /// behavior.
-    unsafe fn par_select_indices_unchecked(&'a self, indices: &'a [usize]) -> SelectIndicesIterPar<'a, Self::SliceType>;
+    unsafe fn par_select_indices_unchecked(&'a self, indices: &'a [I]) -> SelectIndicesIterPar<'a, Self::SliceType, I>;
 }
 
 /// Seek asynchronously through an exclusive slice with a list of indices.
@@ -96,7 +98,7 @@ pub trait SelectIndicesPar<'a>
 /// 
 /// data[3] = 57; // Compile error: Assignment to borrowed data
 /// ```
-pub trait SelectIndicesParMut<'a>
+pub trait SelectIndicesParMut<'a, I: Copy + Clone + PrimInt + ToPrimitive + Sync>
 {
     type SliceType: Sized;
 
@@ -112,7 +114,7 @@ pub trait SelectIndicesParMut<'a>
     /// The iterator returned by this method is guaranteed to give out unique,
     /// exclusive references to the elements referenced by `indices`, and these
     /// references can only be used while the original slice is not dropped.
-    fn par_select_indices_mut(&'a mut self, indices: &'a [usize]) -> SelectIndicesIterMutPar<'a, Self::SliceType>;
+    fn par_select_indices_mut(&'a mut self, indices: &'a [I]) -> SelectIndicesIterMutPar<'a, Self::SliceType, I>;
     
     /// Creates a [ParallelIterator](https://docs.rs/rayon/1.5.1/rayon/iter/trait.ParallelIterator.html)
     /// on the slice that seeks through and returns
@@ -122,7 +124,7 @@ pub trait SelectIndicesParMut<'a>
     /// This method is safe as long as the indices passed are in-bounds and
     /// do not have duplicates. Violating either of these will cause undefined
     /// behavior and possibly create multiple exclusive references.
-    unsafe fn par_select_indices_mut_unchecked(&'a mut self, indices: &'a [usize]) -> SelectIndicesIterMutPar<'a, Self::SliceType>;
+    unsafe fn par_select_indices_mut_unchecked(&'a mut self, indices: &'a [I]) -> SelectIndicesIterMutPar<'a, Self::SliceType, I>;
 }
 
 pub mod prelude {

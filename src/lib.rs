@@ -45,11 +45,13 @@ pub use iter::*;
 mod iter_mut;
 pub use iter_mut::*;
 
+use num_traits::{ PrimInt, ToPrimitive };
+
 /// Seek through a shared slice with a list of indices.
 /// 
 /// SelectIndices provides an iterator that can split a contiguous,
 /// immutable slice of objects (`&[T]`) into individual, shared references (`&T`).
-pub trait SelectIndices<'a>
+pub trait SelectIndices<'a, I: Copy + Clone + PrimInt + ToPrimitive>
 {
     type SliceType: Sized;
 
@@ -64,7 +66,7 @@ pub trait SelectIndices<'a>
     /// The iterator returned by this method is guaranteed to give out unique,
     /// shared references to the elements referenced by `indices`, and these
     /// references can only be used while the original slice is not dropped.
-    fn select_indices(&'a self, indices: &'a [usize]) -> SelectIndicesIter<Self::SliceType>;
+    fn select_indices(&'a self, indices: &'a [I]) -> SelectIndicesIter<Self::SliceType, I>;
 
     /// Creates an iterator on the slice that seeks through and returns
     /// references to each element within the given set of indices
@@ -73,7 +75,7 @@ pub trait SelectIndices<'a>
     /// This method is safe as long as the indices passed are in-bounds and
     /// do not have duplicates. Violating either of these will cause undefined
     /// behavior.
-    unsafe fn select_indices_unchecked(&'a self, indices: &'a [usize]) -> SelectIndicesIter<Self::SliceType>;
+    unsafe fn select_indices_unchecked(&'a self, indices: &'a [I]) -> SelectIndicesIter<Self::SliceType, I>;
 }
 
 /// Seek through an exclusive slice with a list of indices.
@@ -131,7 +133,7 @@ pub trait SelectIndices<'a>
 /// 
 /// data[3] = 57; // Compile error: Assignment to borrowed data
 /// ```
-pub trait SelectIndicesMut<'a>
+pub trait SelectIndicesMut<'a, I: Copy + Clone + PrimInt + ToPrimitive>
 {
     type SliceType: Sized;
 
@@ -146,7 +148,7 @@ pub trait SelectIndicesMut<'a>
     /// The iterator returned by this method is guaranteed to give out unique,
     /// exclusive references to the elements referenced by `indices`, and these
     /// references can only be used while the original slice is not dropped.
-    fn select_indices_mut(&'a mut self, indices: &'a [usize]) -> SelectIndicesIterMut<Self::SliceType>;
+    fn select_indices_mut(&'a mut self, indices: &'a [I]) -> SelectIndicesIterMut<Self::SliceType, I>;
 
     /// Creates an iterator on the slice that seeks through and returns
     /// references to each element within the given set of indices
@@ -155,7 +157,7 @@ pub trait SelectIndicesMut<'a>
     /// This method is safe as long as the indices passed are in-bounds and
     /// do not have duplicates. Violating either of these will cause undefined
     /// behavior and possibly create multiple exclusive references.
-    unsafe fn select_indices_mut_unchecked(&'a mut self, indices: &'a [usize]) -> SelectIndicesIterMut<Self::SliceType>;
+    unsafe fn select_indices_mut_unchecked(&'a mut self, indices: &'a [I]) -> SelectIndicesIterMut<Self::SliceType, I>;
 }
 
 mod slice;
