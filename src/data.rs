@@ -15,7 +15,6 @@ impl<T, I: Copy + Clone + PrimInt + ToPrimitive> SelectIndicesBase<'_, &[T], I>
     pub(crate) fn safety_check(slice: &[T], indices: &[I])
     {
         let len = slice.len();
-        let indices_len = indices.len();
         
         indices.iter().for_each(|&i| {
             let i = i.to_usize()
