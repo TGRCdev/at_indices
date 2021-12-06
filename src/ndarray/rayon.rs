@@ -1,34 +1,32 @@
+use crate::{
+    prelude::*,
+    SelectIndicesBase, SelectIndicesMutBase
+};
 use ndarray::{
     prelude::*,
     IntoDimension, NdIndex,
-    Data, DataMut,
-};
-use crate::{
-    prelude::*,
-    SelectIndicesBase, SelectIndicesMutBase,
+    Data, DataMut, RawData,
 };
 use std::{
     collections::HashSet,
     hash::Hash,
 };
 
-#[cfg(feature = "rayon")]
-mod rayon;
-
-impl<'a, S, D> SelectIndices<'a, ArrayBase<S, D::Dim>, D> for ArrayBase<S, D::Dim>
+impl<'a, S, D> SelectIndicesPar<'a, ArrayBase<S, D::Dim>, D> for ArrayBase<S, D::Dim>
 where
-    S: 'a + Data,
-    D: 'a + IntoDimension + Clone + NdIndex<<D as IntoDimension>::Dim>,
+    S: 'a + Data + Sync,
+    D: 'a + IntoDimension + Clone + NdIndex<<D as IntoDimension>::Dim> + Sync,
+    <S as RawData>::Elem: Sync
 {
-    fn select_indices(&'a self, indices: &'a [D]) -> crate::SelectIndicesIter<ArrayBase<S, D::Dim>, D> {
+    fn par_select_indices(&'a self, indices: &'a [D]) -> crate::rayon::SelectIndicesIterPar<'a, ArrayBase<S, D::Dim>, D> {
         indices.iter().for_each(|i| {
             assert!(self.get(i.clone()).is_some(), "select_indices was given an invalid index! ({:?})", i);
         });
 
-        unsafe { self.select_indices_unchecked(indices) }
+        unsafe { self.par_select_indices_unchecked(indices) }
     }
 
-    unsafe fn select_indices_unchecked(&'a self, indices: &'a [D]) -> crate::SelectIndicesIter<ArrayBase<S, D::Dim>, D> {
+    unsafe fn par_select_indices_unchecked(&'a self, indices: &'a [D]) -> crate::rayon::SelectIndicesIterPar<'a, ArrayBase<S, D::Dim>, D> {
         SelectIndicesBase {
             data: self,
             indices,
@@ -38,12 +36,13 @@ where
     }
 }
 
-impl<'a, S, D> SelectIndicesMut<'a, ArrayBase<S, D::Dim>, D> for ArrayBase<S, D::Dim>
+impl<'a, S, D> SelectIndicesParMut<'a, ArrayBase<S, D::Dim>, D> for ArrayBase<S, D::Dim>
 where
-    S: 'a + DataMut,
-    D: 'a + IntoDimension + Clone + NdIndex<<D as IntoDimension>::Dim> + Eq + Hash,
+    S: 'a + DataMut + Send,
+    D: 'a + IntoDimension + Clone + NdIndex<<D as IntoDimension>::Dim> + Sync + Eq + Hash,
+    <S as RawData>::Elem: Send,
 {
-    fn select_indices_mut(&'a mut self, indices: &'a [D]) -> crate::SelectIndicesIterMut<ArrayBase<S, D::Dim>, D> {
+    fn par_select_indices_mut(&'a mut self, indices: &'a [D]) -> crate::rayon::SelectIndicesIterMutPar<'a, ArrayBase<S, D::Dim>, D> {
         let indices_len = indices.len();
         
         // If indices is longer than the slice, either there are
@@ -59,10 +58,10 @@ where
             assert!(indexset.insert(i.clone()), "select_indices_mut was passed a duplicate index!");
         });
 
-        unsafe { self.select_indices_mut_unchecked(indices) }
+        unsafe { self.par_select_indices_mut_unchecked(indices) }
     }
 
-    unsafe fn select_indices_mut_unchecked(&'a mut self, indices: &'a [D]) -> crate::SelectIndicesIterMut<ArrayBase<S, D::Dim>, D> {
+    unsafe fn par_select_indices_mut_unchecked(&'a mut self, indices: &'a [D]) -> crate::rayon::SelectIndicesIterMutPar<'a, ArrayBase<S, D::Dim>, D> {
         SelectIndicesMutBase {
             data: self,
             indices,

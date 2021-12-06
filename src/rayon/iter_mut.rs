@@ -8,18 +8,20 @@ use rayon::{
     },
 };
 
-use std::ops::IndexMut;
+use std::ops::{ Index, IndexMut };
 
-pub struct SelectIndicesIterMutPar<'a, T: 'a + IndexMut<I, Output = O> + ?Sized, I: Clone + Sync, O: 'a + Send>(pub(crate) SelectIndicesMutBase<'a, T, I>);
+pub struct SelectIndicesIterMutPar<'a, T: 'a + IndexMut<I> + ?Sized, I: Clone + Sync>
+    (pub(crate) SelectIndicesMutBase<'a, T, I>)
+    where <T as Index<I>>::Output: 'a + Send;
 
-impl<'a, T: 'a + IndexMut<I, Output = O> + ?Sized, I: Clone + Sync, O: 'a + Send> From<SelectIndicesMutBase<'a, T, I>> for SelectIndicesIterMutPar<'a, T, I, O>
+impl<'a, T: 'a + IndexMut<I, Output = O> + ?Sized, I: Clone + Sync, O: 'a + Send> From<SelectIndicesMutBase<'a, T, I>> for SelectIndicesIterMutPar<'a, T, I>
 {
     fn from(d: SelectIndicesMutBase<'a, T, I>) -> Self {
         Self(d)
     }
 }
 
-impl<'a, T: 'a + IndexMut<I, Output = O> + ?Sized + Send, I: Clone + Sync, O: 'a + Send> ParallelIterator for SelectIndicesIterMutPar<'a, T, I, O>
+impl<'a, T: 'a + IndexMut<I, Output = O> + ?Sized + Send, I: Clone + Sync, O: 'a + Send> ParallelIterator for SelectIndicesIterMutPar<'a, T, I>
 {
     type Item = &'a mut O;
 
@@ -30,7 +32,7 @@ impl<'a, T: 'a + IndexMut<I, Output = O> + ?Sized + Send, I: Clone + Sync, O: 'a
     }
 }
 
-impl<'a, T: 'a + IndexMut<I, Output = O> + ?Sized + Send, I: Clone + Sync, O: 'a + Send> IndexedParallelIterator for SelectIndicesIterMutPar<'a, T, I, O>
+impl<'a, T: 'a + IndexMut<I, Output = O> + ?Sized + Send, I: Clone + Sync, O: 'a + Send> IndexedParallelIterator for SelectIndicesIterMutPar<'a, T, I>
 {
     fn len(&self) -> usize {
         self.0.indices.len()
@@ -45,7 +47,7 @@ impl<'a, T: 'a + IndexMut<I, Output = O> + ?Sized + Send, I: Clone + Sync, O: 'a
     }
 }
 
-impl<'a, T: 'a + IndexMut<I, Output = O> + ?Sized + Send, I: Clone + Sync, O: 'a + Send> SelectIndicesIterMutPar<'a, T, I, O>
+impl<'a, T: 'a + IndexMut<I, Output = O> + ?Sized + Send, I: Clone + Sync, O: 'a + Send> SelectIndicesIterMutPar<'a, T, I>
 {
     /// Return an iterator that outputs a tuple with
     /// each given index and its corresponding element

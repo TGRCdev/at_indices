@@ -9,16 +9,29 @@ use rayon::{
 };
 use std::ops::Index;
 
-pub struct SelectIndicesIterPar<'a, T: 'a + Index<I, Output = O> + ?Sized + Sync, I: Clone + Sync, O: 'a + Sync>(pub(crate) SelectIndicesBase<'a, T, I>);
+pub struct SelectIndicesIterPar<'a, T, I>
+    (pub(crate) SelectIndicesBase<'a, T, I>)
+    where
+        T: 'a + Index<I> + ?Sized + Sync,
+        I: Clone + Sync,
+        <T as Index<I>>::Output: 'a + Sync;
 
-impl<'a, T: 'a + Index<I, Output = O> + ?Sized + Sync, I: Clone + Sync, O: 'a + Sync> From<SelectIndicesBase<'a, T, I>> for SelectIndicesIterPar<'a, T, I, O>
+impl<'a, T, I: Clone + Sync> From<SelectIndicesBase<'a, T, I>> for SelectIndicesIterPar<'a, T, I>
+where
+    T: 'a + Index<I> + ?Sized + Sync,
+    I: Clone + Sync,
+    <T as Index<I>>::Output: 'a + Sync
 {
     fn from(d: SelectIndicesBase<'a, T, I>) -> Self {
         Self(d)
     }
 }
 
-impl<'a, T: 'a + Index<I, Output = O> + ?Sized + Sync, I: Clone + Sync, O: 'a + Sync> ParallelIterator for SelectIndicesIterPar<'a, T, I, O>
+impl<'a, T, I, O> ParallelIterator for SelectIndicesIterPar<'a, T, I>
+where
+    T: 'a + Index<I, Output = O> + ?Sized + Sync,
+    I: Clone + Sync,
+    O: 'a + Sync,
 {
     type Item = &'a O;
 
@@ -29,7 +42,11 @@ impl<'a, T: 'a + Index<I, Output = O> + ?Sized + Sync, I: Clone + Sync, O: 'a + 
     }
 }
 
-impl<'a, T: 'a + Index<I, Output = O> + ?Sized + Sync, I: Clone + Sync, O: 'a + Sync> IndexedParallelIterator for SelectIndicesIterPar<'a, T, I, O>
+impl<'a, T, I, O> IndexedParallelIterator for SelectIndicesIterPar<'a, T, I>
+where
+    T: 'a + Index<I, Output = O> + ?Sized + Sync,
+    I: Clone + Sync,
+    O: 'a + Sync,
 {
     fn len(&self) -> usize {
         self.0.len()
@@ -44,7 +61,11 @@ impl<'a, T: 'a + Index<I, Output = O> + ?Sized + Sync, I: Clone + Sync, O: 'a + 
     }
 }
 
-impl<'a, T: 'a + Index<I, Output = O> + ?Sized + Sync, I: Clone + Sync, O: 'a + Sync> SelectIndicesIterPar<'a, T, I, O>
+impl<'a, T, I, O> SelectIndicesIterPar<'a, T, I>
+where
+    T: 'a + Index<I, Output = O> + ?Sized + Sync,
+    I: Clone + Sync,
+    O: 'a + Sync,
 {
     /// Return an iterator that outputs a tuple with
     /// each given index and its corresponding element

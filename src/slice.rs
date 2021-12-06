@@ -72,15 +72,15 @@ impl<'a, T: 'a> SelectIndicesMut<'a, [T], usize> for [T]
 }
 
 #[cfg(feature = "rayon")]
-impl<'a, T: 'a + Send> SelectIndicesParMut<'a, [T], usize, T> for [T]
+impl<'a, T: 'a + Send> SelectIndicesParMut<'a, [T], usize> for [T]
 {
-    fn par_select_indices_mut(&'a mut self, indices: &'a [usize]) -> crate::rayon::SelectIndicesIterMutPar<'a, [T], usize, T> {
+    fn par_select_indices_mut(&'a mut self, indices: &'a [usize]) -> crate::rayon::SelectIndicesIterMutPar<'a, [T], usize> {
         slice_safety_check_mut(self, indices);
 
         return unsafe { self.par_select_indices_mut_unchecked(indices) };
     }
 
-    unsafe fn par_select_indices_mut_unchecked(&'a mut self, indices: &'a [usize]) -> crate::rayon::SelectIndicesIterMutPar<'a, [T], usize, T> {
+    unsafe fn par_select_indices_mut_unchecked(&'a mut self, indices: &'a [usize]) -> crate::rayon::SelectIndicesIterMutPar<'a, [T], usize> {
         SelectIndicesMutBase {
             data: self,
             indices,
@@ -91,15 +91,15 @@ impl<'a, T: 'a + Send> SelectIndicesParMut<'a, [T], usize, T> for [T]
 }
 
 #[cfg(feature = "rayon")]
-impl<'a, T: 'a + Sync> SelectIndicesPar<'a, [T], usize, T> for [T]
+impl<'a, T: 'a + Sync> SelectIndicesPar<'a, [T], usize> for [T]
 {
-    fn par_select_indices(&'a self, indices: &'a [usize]) -> crate::rayon::SelectIndicesIterPar<'a, [T], usize, T> {
+    fn par_select_indices(&'a self, indices: &'a [usize]) -> crate::rayon::SelectIndicesIterPar<'a, [T], usize> {
         slice_safety_check(self, indices);
 
         return unsafe { self.par_select_indices_unchecked(indices) };
     }
 
-    unsafe fn par_select_indices_unchecked(&'a self, indices: &'a [usize]) -> crate::rayon::SelectIndicesIterPar<'a, [T], usize, T> {
+    unsafe fn par_select_indices_unchecked(&'a self, indices: &'a [usize]) -> crate::rayon::SelectIndicesIterPar<'a, [T], usize> {
         SelectIndicesBase {
             data: self,
             indices,
