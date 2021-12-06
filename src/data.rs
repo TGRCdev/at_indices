@@ -1,68 +1,35 @@
-pub(crate) struct SelectIndicesBase<'a, T, I>
+pub(crate) struct SelectIndicesBase<'a, T: ?Sized, I: Clone>
 {
-    pub(crate) data: T,
+    pub(crate) data: &'a T,
     pub(crate) indices: &'a [I],
     pub(crate) start: usize,
     pub(crate) end: usize,
 }
 
-use num_traits::{ PrimInt, ToPrimitive };
-
-use std::collections::HashSet;
-
-impl<T, I: Copy + Clone + PrimInt + ToPrimitive> SelectIndicesBase<'_, &[T], I>
+pub(crate) struct SelectIndicesMutBase<'a, T: ?Sized, I: Clone>
 {
-    pub(crate) fn safety_check(slice: &[T], indices: &[I])
-    {
-        let len = slice.len();
-        
-        indices.iter().for_each(|&i| {
-            let i = i.to_usize()
-                .expect("select_indices was given indices that cannot be converted to usize!");
-            assert!(i < len, "select_indices was given an out-of-bounds index!");
-        });
-    }
+    pub(crate) data: &'a mut T,
+    pub(crate) indices: &'a [I],
+    pub(crate) start: usize,
+    pub(crate) end: usize,
 }
 
-impl<T, I: Copy + Clone + PrimInt + ToPrimitive> SelectIndicesBase<'_, &mut [T], I>
+use std::{
+    ops::{ Index, IndexMut },
+};
+
+impl<'a, T: 'a + Index<I> + ?Sized, I: Clone> Iterator for SelectIndicesBase<'a, T, I>
 {
-    pub(crate) fn safety_check(slice: &mut [T], indices: &[I])
-    {
-        let len = slice.len();
-        let indices_len = indices.len();
-
-        // If indices is longer than the slice, either there are
-        // duplicates, or some indices are out of bounds.
-        assert!(indices_len <= len,
-            "select_indices_mut was passed more indices than are possible without breaking mutability rules!"); 
-
-        let mut indexset = HashSet::with_capacity(indices_len);
-        // TODO: Safety checks without heap allocation
-        
-        indices.iter().for_each(|&i| {
-            let i = i.to_usize()
-                .expect("select_indices_mut was given indices that cannot be converted to usize!");
-            assert!(i < len, "select_indices_mut was passed an out-of-bounds index!");
-            assert!(indexset.insert(i), "select_indices_mut was passed a duplicate index!");
-        });
-    }
-}
-
-impl<'a, T: 'a, I: Copy + Clone + PrimInt + ToPrimitive> Iterator for SelectIndicesBase<'a, &'a [T], I>
-{
-    type Item = &'a T;
+    type Item = &'a T::Output;
 
     fn next(&mut self) -> Option<Self::Item> {
         if self.start < self.end
         {
-            let ind = unsafe { *self.indices.get_unchecked(self.start) };
+            let ind = &self.indices[self.start];
             self.start += 1;
-            return Some(unsafe { 
-                self.data.get_unchecked(
-                    ind.to_usize()
-                    .expect("select_indices was given indices that cannot be converted to usize!")
-                ) 
-            });
+            return Some(
+                &self.data[ind.clone()]
+            );
         }
         else {
             return None;
@@ -70,46 +37,39 @@ impl<'a, T: 'a, I: Copy + Clone + PrimInt + ToPrimitive> Iterator for SelectIndi
     }
 
     fn size_hint(&self) -> (usize, Option<usize>) {
-        let len = self.indices.len();
+        let len = self.end - self.start;
         return (len, Some(len));
     }
 }
-impl<'a, T: 'a, I: Copy + Clone + PrimInt + ToPrimitive> DoubleEndedIterator for SelectIndicesBase<'a, &'a [T], I>
+impl<'a, T: 'a + Index<I> + ?Sized, I: Clone> DoubleEndedIterator for SelectIndicesBase<'a, T, I>
 {
     fn next_back(&mut self) -> Option<Self::Item> {
         if self.start < self.end
         {
             self.end -= 1;
-            let ind = unsafe { * self.indices.get_unchecked(self.end) };
-            return Some(unsafe {
-                self.data.get_unchecked(
-                    ind.to_usize()
-                    .expect("select_indices was given indices that cannot be converted to usize!")
-                )
-            });
+            let ind = &self.indices[self.end];
+            return Some(&self.data[ind.clone()]);
         }
         else {
             return None;
         }
     }
 }
-impl<'a, T: 'a, I: Copy + Clone + PrimInt + ToPrimitive> ExactSizeIterator for SelectIndicesBase<'a, &'a [T], I> {}
+impl<'a, T: 'a + Index<I> + ?Sized, I: Clone> ExactSizeIterator for SelectIndicesBase<'a, T, I> {}
 
-impl<'a, T: 'a, I: Copy + Clone + PrimInt + ToPrimitive> Iterator for SelectIndicesBase<'a, &'a mut [T], I>
+impl<'a, T: 'a + IndexMut<I> + ?Sized, I: Clone> Iterator for SelectIndicesMutBase<'a, T, I>
 {
-    type Item = &'a mut T;
+    type Item = &'a mut T::Output;
 
     fn next(&mut self) -> Option<Self::Item> {
         if self.start < self.end
         {
-            let ind = unsafe { *self.indices.get_unchecked(self.start) };
+            let ind = &self.indices[self.start];
             self.start += 1;
-            return Some(unsafe {
-                &mut *self.data.as_mut_ptr().add(
-                    ind.to_usize()
-                    .expect("select_indices was given indices that cannot be converted to usize!")
-                )
-            });
+            let ptr: *mut T = self.data;
+            return Some(
+                unsafe { &mut (*ptr)[ind.clone()] }
+            );
         }
         else {
             return None;
@@ -117,27 +77,26 @@ impl<'a, T: 'a, I: Copy + Clone + PrimInt + ToPrimitive> Iterator for SelectIndi
     }
 
     fn size_hint(&self) -> (usize, Option<usize>) {
-        let len = self.indices.len();
+        let len = self.end - self.start;
         return (len, Some(len));
     }
 }
-impl<'a, T: 'a, I: Copy + Clone + PrimInt + ToPrimitive> DoubleEndedIterator for SelectIndicesBase<'a, &'a mut [T], I>
+impl<'a, T: 'a + IndexMut<I> + ?Sized, I: Clone> DoubleEndedIterator for SelectIndicesMutBase<'a, T, I>
 {
     fn next_back(&mut self) -> Option<Self::Item> {
         if self.start < self.end
         {
             self.end -= 1;
-            let ind = unsafe { *self.indices.get_unchecked(self.end) };
-            return Some(unsafe {
-                &mut *self.data.as_mut_ptr().add(
-                    ind.to_usize()
-                    .expect("select_indices was given indices that cannot be converted to usize!")
-                )
-            });
+            let ind = &self.indices[self.end];
+            let ptr: *mut T = self.data;
+            return Some(
+                unsafe { &mut (*ptr)[ind.clone()] }
+            );
         }
         else {
             return None;
         }
     }
 }
-impl<'a, T: 'a, I: Copy + Clone + PrimInt + ToPrimitive> ExactSizeIterator for SelectIndicesBase<'a, &'a mut [T], I> {}
+
+impl<'a, T: 'a + IndexMut<I> + ?Sized, I: Clone> ExactSizeIterator for SelectIndicesMutBase<'a, T, I> {}

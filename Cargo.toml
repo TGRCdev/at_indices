@@ -10,5 +10,4 @@ license = "Apache-2.0"
 repository = "https://github.com/TGRCdev/select_indices"
 
 [dependencies]
-num-traits = "^0.2"
 rayon = { version = "^1", optional = true }

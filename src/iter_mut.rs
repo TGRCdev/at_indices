@@ -1,22 +1,23 @@
-use std::iter::{Cloned, Zip};
+use std::{
+    iter::Zip,
+    ops::IndexMut,
+};
 use core::slice::Iter;
 
-use crate::data::SelectIndicesBase;
+use crate::data::SelectIndicesMutBase;
 
-use num_traits::{ PrimInt, ToPrimitive };
+pub struct SelectIndicesIterMut<'a, T: ?Sized, I: Clone>(pub(crate) SelectIndicesMutBase<'a, T, I>);
 
-pub struct SelectIndicesIterMut<'a, T, I: Copy + Clone + PrimInt + ToPrimitive>(pub(crate) SelectIndicesBase<'a, T, I>);
-
-impl<'a, T, I: Copy + Clone + PrimInt + ToPrimitive> From<SelectIndicesBase<'a, T, I>> for SelectIndicesIterMut<'a, T, I>
+impl<'a, T: ?Sized, I: Clone> From<SelectIndicesMutBase<'a, T, I>> for SelectIndicesIterMut<'a, T, I>
 {
-    fn from(d: SelectIndicesBase<'a, T, I>) -> Self {
+    fn from(d: SelectIndicesMutBase<'a, T, I>) -> Self {
         Self(d)
     }
 }
 
-impl<'a, T, I: Copy + Clone + PrimInt + ToPrimitive> Iterator for SelectIndicesIterMut<'a, &'a mut [T], I>
+impl<'a, T: 'a + IndexMut<I> + ?Sized, I: Clone> Iterator for SelectIndicesIterMut<'a, T, I>
 {
-    type Item = &'a mut T;
+    type Item = &'a mut T::Output;
 
     fn next(&mut self) -> Option<Self::Item> {
         self.0.next()
@@ -27,16 +28,18 @@ impl<'a, T, I: Copy + Clone + PrimInt + ToPrimitive> Iterator for SelectIndicesI
     }
 }
 
-impl<'a, T, I: Copy + Clone + PrimInt + ToPrimitive> DoubleEndedIterator for SelectIndicesIterMut<'a, &'a mut [T], I>
+impl<'a, T: 'a + IndexMut<I> + ?Sized, I: Clone> DoubleEndedIterator for SelectIndicesIterMut<'a, T, I>
 {
     fn next_back(&mut self) -> Option<Self::Item> {
         self.0.next_back()
     }
 }
 
-impl<'a, T, I: Copy + Clone + PrimInt + ToPrimitive> ExactSizeIterator for SelectIndicesIterMut<'a, &'a mut [T], I> {}
+impl<'a, T: 'a + IndexMut<I> + ?Sized, I: Clone> ExactSizeIterator for SelectIndicesIterMut<'a, T, I> {}
 
-impl<'a, T, I: Copy + Clone + PrimInt + ToPrimitive> SelectIndicesIterMut<'a, &'a mut [T], I>
+//pub type SelectIndicesIndexedIterMut<'a, T, I> = Zip<Cloned<Iter<'a, I>>, SelectIndicesIterMut<'a, &'a mut [T], I>>;
+
+impl<'a, T: 'a + IndexMut<I> + ?Sized, I: Clone> SelectIndicesIterMut<'a, T, I>
 {
     /// Return an iterator that outputs a tuple with
     /// each given index and its corresponding element
@@ -55,7 +58,7 @@ impl<'a, T, I: Copy + Clone + PrimInt + ToPrimitive> SelectIndicesIterMut<'a, &'
     /// data.select_indices_mut(&[2, 6, 8, 10, 14, 16, 18, 22])
     ///     .indexed()
     ///     .for_each(|(i, x)| {
-    ///         *x = i;
+    ///         *x = *i;
     ///     });
     /// 
     /// assert_eq!(
@@ -70,14 +73,15 @@ impl<'a, T, I: Copy + Clone + PrimInt + ToPrimitive> SelectIndicesIterMut<'a, &'
     /// );
     /// # }
     /// ```
-    pub fn indexed(self) -> Zip<Cloned<Iter<'a, I>>, Self>
+    pub fn indexed(self) -> Zip<Iter<'a, I>, SelectIndicesIterMut<'a, T, I>>
     {
-        return self.0.indices[
+        let iter = self.0.indices[
             self.0.start
             ..
             self.0.end
             ].iter()
-            .cloned()
             .zip(self);
+        
+        return iter;
     }
 }

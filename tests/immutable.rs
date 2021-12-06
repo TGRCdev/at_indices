@@ -51,17 +51,6 @@ fn immutable_indexed()
     });
 }
 
-#[test]
-#[should_panic]
-fn immutable_negative_index()
-{
-    let data = [1,2,3];
-
-    data.select_indices(&[1, -2]).indexed().for_each(|(i, x)| {
-        println!("data[{:2}] = {:02}", i, x);
-    }); // Signed index: should panic
-}
-
 #[cfg(feature = "rayon")]
 mod rayon
 {
