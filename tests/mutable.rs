@@ -49,17 +49,6 @@ fn mutable_repeated_index_panic()
         .eq(&[2,2]);
 }
 
-#[test]
-#[should_panic]
-fn mutable_negative_index()
-{
-    let mut data = [1,2,3];
-    let indices = [1,-2];
-
-    data.select_indices_mut(&indices)
-        .eq(&[2,3]);
-}
-
 #[cfg(feature = "rayon")]
 mod rayon
 {

@@ -4,24 +4,23 @@ use rayon::{
     slice::Iter,
     iter::{
         plumbing::bridge,
-        Zip, Cloned
+        Zip
     },
 };
+use std::ops::Index;
 
-use num_traits::{ PrimInt, ToPrimitive };
+pub struct SelectIndicesIterPar<'a, T: 'a + Index<I, Output = O> + ?Sized + Sync, I: Clone + Sync, O: 'a + Sync>(pub(crate) SelectIndicesBase<'a, T, I>);
 
-pub struct SelectIndicesIterPar<'a, T: Sync, I: Copy + Clone + PrimInt + ToPrimitive + Sync>(pub(crate) SelectIndicesBase<'a, T, I>);
-
-impl<'a, T: Sync, I: Copy + Clone + PrimInt + ToPrimitive + Sync> From<SelectIndicesBase<'a, &'a [T], I>> for SelectIndicesIterPar<'a, &'a [T], I>
+impl<'a, T: 'a + Index<I, Output = O> + ?Sized + Sync, I: Clone + Sync, O: 'a + Sync> From<SelectIndicesBase<'a, T, I>> for SelectIndicesIterPar<'a, T, I, O>
 {
-    fn from(d: SelectIndicesBase<'a, &'a [T], I>) -> Self {
+    fn from(d: SelectIndicesBase<'a, T, I>) -> Self {
         Self(d)
     }
 }
 
-impl<'a, T: Sync, I: Copy + Clone + PrimInt + ToPrimitive + Sync> ParallelIterator for SelectIndicesIterPar<'a, &'a [T], I>
+impl<'a, T: 'a + Index<I, Output = O> + ?Sized + Sync, I: Clone + Sync, O: 'a + Sync> ParallelIterator for SelectIndicesIterPar<'a, T, I, O>
 {
-    type Item = &'a T;
+    type Item = &'a O;
 
     fn drive_unindexed<C>(self, consumer: C) -> C::Result
     where
@@ -30,7 +29,7 @@ impl<'a, T: Sync, I: Copy + Clone + PrimInt + ToPrimitive + Sync> ParallelIterat
     }
 }
 
-impl<'a, T: Sync, I: Copy + Clone + PrimInt + ToPrimitive + Sync> IndexedParallelIterator for SelectIndicesIterPar<'a, &'a [T], I>
+impl<'a, T: 'a + Index<I, Output = O> + ?Sized + Sync, I: Clone + Sync, O: 'a + Sync> IndexedParallelIterator for SelectIndicesIterPar<'a, T, I, O>
 {
     fn len(&self) -> usize {
         self.0.len()
@@ -45,7 +44,7 @@ impl<'a, T: Sync, I: Copy + Clone + PrimInt + ToPrimitive + Sync> IndexedParalle
     }
 }
 
-impl<'a, T: Sync, I: Copy + Clone + PrimInt + ToPrimitive + Sync + Send> SelectIndicesIterPar<'a, &'a [T], I>
+impl<'a, T: 'a + Index<I, Output = O> + ?Sized + Sync, I: Clone + Sync, O: 'a + Sync> SelectIndicesIterPar<'a, T, I, O>
 {
     /// Return an iterator that outputs a tuple with
     /// each given index and its corresponding element
@@ -76,14 +75,13 @@ impl<'a, T: Sync, I: Copy + Clone + PrimInt + ToPrimitive + Sync + Send> SelectI
     /// );
     /// # }
     /// ```
-    pub fn indexed(self) -> Zip<Cloned<Iter<'a, I>>, Self>
+    pub fn indexed(self) -> Zip<Iter<'a, I>, Self>
     {
         return self.0.indices[
             self.0.start
             ..
             self.0.end
             ].par_iter()
-            .cloned()
             .zip(self);
     }
 }
