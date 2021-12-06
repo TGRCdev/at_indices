@@ -15,20 +15,11 @@ impl<T, I: Copy + Clone + PrimInt + ToPrimitive> SelectIndicesBase<'_, &[T], I>
     pub(crate) fn safety_check(slice: &[T], indices: &[I])
     {
         let len = slice.len();
-        let indices_len = indices.len();
-
-        // If indices is longer than the slice, either there are
-        // duplicates, or some indices are out of bounds.
-        assert!(indices_len <= len); 
-
-        let mut indexset = HashSet::with_capacity(indices_len);
-        // TODO: Safety checks without heap allocation
         
         indices.iter().for_each(|&i| {
             let i = i.to_usize()
                 .expect("select_indices was given indices that cannot be converted to usize!");
-            assert!(i < len);
-            assert!(indexset.insert(i));
+            assert!(i < len, "select_indices was given an out-of-bounds index!");
         });
     }
 }
@@ -42,16 +33,17 @@ impl<T, I: Copy + Clone + PrimInt + ToPrimitive> SelectIndicesBase<'_, &mut [T],
 
         // If indices is longer than the slice, either there are
         // duplicates, or some indices are out of bounds.
-        assert!(indices_len <= len); 
+        assert!(indices_len <= len,
+            "select_indices_mut was passed more indices than are possible without breaking mutability rules!"); 
 
         let mut indexset = HashSet::with_capacity(indices_len);
         // TODO: Safety checks without heap allocation
         
         indices.iter().for_each(|&i| {
             let i = i.to_usize()
-                .expect("select_indices was given indices that cannot be converted to usize!");
-            assert!(i < len);
-            assert!(indexset.insert(i));
+                .expect("select_indices_mut was given indices that cannot be converted to usize!");
+            assert!(i < len, "select_indices_mut was passed an out-of-bounds index!");
+            assert!(indexset.insert(i), "select_indices_mut was passed a duplicate index!");
         });
     }
 }

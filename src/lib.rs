@@ -59,11 +59,10 @@ pub trait SelectIndices<'a, I: Copy + Clone + PrimInt + ToPrimitive>
     /// references to each element within the given set of indices
     /// 
     /// # Panics
-    /// This function will panic if any index is out of bounds,
-    /// or if there are any duplicate indices.
+    /// This function will panic if any index is out of bounds.
     /// 
     /// # Safety
-    /// The iterator returned by this method is guaranteed to give out unique,
+    /// The iterator returned by this method is guaranteed to give out valid
     /// shared references to the elements referenced by `indices`, and these
     /// references can only be used while the original slice is not dropped.
     fn select_indices(&'a self, indices: &'a [I]) -> SelectIndicesIter<Self::SliceType, I>;
@@ -72,9 +71,8 @@ pub trait SelectIndices<'a, I: Copy + Clone + PrimInt + ToPrimitive>
     /// references to each element within the given set of indices
     /// 
     /// # Safety
-    /// This method is safe as long as the indices passed are in-bounds and
-    /// do not have duplicates. Violating either of these will cause undefined
-    /// behavior.
+    /// This method is safe as long as the indices passed are in-bounds. Otherwise,
+    /// behavior is undefined.
     unsafe fn select_indices_unchecked(&'a self, indices: &'a [I]) -> SelectIndicesIter<Self::SliceType, I>;
 }
 
@@ -145,8 +143,8 @@ pub trait SelectIndicesMut<'a, I: Copy + Clone + PrimInt + ToPrimitive>
     /// or if there are any duplicate indices.
     /// 
     /// # Safety
-    /// The iterator returned by this method is guaranteed to give out unique,
-    /// exclusive references to the elements referenced by `indices`, and these
+    /// The iterator returned by this method is guaranteed to give out valid,
+    /// unique exclusive references to the elements referenced by `indices`, and these
     /// references can only be used while the original slice is not dropped.
     fn select_indices_mut(&'a mut self, indices: &'a [I]) -> SelectIndicesIterMut<Self::SliceType, I>;
 

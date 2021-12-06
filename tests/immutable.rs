@@ -9,10 +9,10 @@ fn immutable_select_indices_test()
         0,0,4,5,3
     ];
 
-    let indices = [4, 2, 14, 12, 13];
+    let indices = [4, 13, 2, 12, 14, 14, 12, 2, 13];
 
     assert!(
-        data.select_indices(&indices).eq(&[1, 2, 3, 4, 5])
+        data.select_indices(&indices).eq(&[1, 5, 2, 4, 3, 3, 4, 2, 5])
     )
 }
 
@@ -28,13 +28,12 @@ fn immutable_out_of_range_panic()
 }
 
 #[test]
-#[should_panic]
-fn immutable_repeated_index_panic()
+fn immutable_repeated_index()
 {
     let data = [1,2,3];
     let indices = [1,1];
 
-    data.select_indices(&indices) // Repeated index: should panic
+    data.select_indices(&indices) // Repeated index: valid when immutable
         .eq(&[2,2]);
 }
 
@@ -78,10 +77,10 @@ mod rayon
             0,0,4,5,3
         ];
 
-        let indices = [4, 2, 14, 12, 13];
+        let indices = [4, 13, 2, 12, 14, 14, 12, 2, 13];
 
         assert!(
-            data.par_select_indices(&indices).eq(&[1, 2, 3, 4, 5])
+            data.par_select_indices(&indices).eq(&[1, 5, 2, 4, 3, 3, 4, 2, 5])
         );
     }
 
@@ -97,13 +96,12 @@ mod rayon
     }
 
     #[test]
-    #[should_panic]
-    fn par_immutable_repeated_index_panic()
+    fn par_immutable_repeated_index()
     {
         let data = [1,2,3];
         let indices = [1,1];
 
-        data.par_select_indices(&indices) // Repeated index: should panic
+        data.par_select_indices(&indices) // Repeated index: valid when immutable
             .eq(&[2,2]);
     }
 }
