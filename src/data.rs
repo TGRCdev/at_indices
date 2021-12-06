@@ -1,4 +1,4 @@
-pub(crate) struct SelectIndicesBase<'a, T: ?Sized, I: Clone>
+pub(crate) struct SelectIndicesBase<'a, T: ?Sized, I>
 {
     pub(crate) data: &'a T,
     pub(crate) indices: &'a [I],
@@ -6,7 +6,7 @@ pub(crate) struct SelectIndicesBase<'a, T: ?Sized, I: Clone>
     pub(crate) end: usize,
 }
 
-pub(crate) struct SelectIndicesMutBase<'a, T: ?Sized, I: Clone>
+pub(crate) struct SelectIndicesMutBase<'a, T: ?Sized, I>
 {
     pub(crate) data: &'a mut T,
     pub(crate) indices: &'a [I],

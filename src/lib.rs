@@ -169,7 +169,4 @@ pub mod prelude {
 
     #[cfg(feature = "rayon")]
     pub use crate::rayon::prelude::*;
-
-    #[cfg(feature = "ndarray")]
-    pub use crate::ndarray::prelude::*;
 }
