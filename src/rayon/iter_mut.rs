@@ -1,27 +1,27 @@
-use crate::data::SelectIndicesBase;
+use crate::data::SelectIndicesMutBase;
 use rayon::{
     prelude::*,
     slice::Iter,
     iter::{
         plumbing::bridge,
-        Zip, Cloned
+        Zip
     },
 };
 
-use num_traits::{ PrimInt, ToPrimitive };
+use std::ops::IndexMut;
 
-pub struct SelectIndicesIterMutPar<'a, T, I: Copy + Clone + PrimInt + ToPrimitive + Sync>(pub(crate) SelectIndicesBase<'a, T, I>);
+pub struct SelectIndicesIterMutPar<'a, T: 'a + IndexMut<I, Output = O> + ?Sized, I: Clone + Sync, O: 'a + Send>(pub(crate) SelectIndicesMutBase<'a, T, I>);
 
-impl<'a, T, I: Copy + Clone + PrimInt + ToPrimitive + Sync> From<SelectIndicesBase<'a, &'a mut [T], I>> for SelectIndicesIterMutPar<'a, &'a mut [T], I>
+impl<'a, T: 'a + IndexMut<I, Output = O> + ?Sized, I: Clone + Sync, O: 'a + Send> From<SelectIndicesMutBase<'a, T, I>> for SelectIndicesIterMutPar<'a, T, I, O>
 {
-    fn from(d: SelectIndicesBase<'a, &'a mut [T], I>) -> Self {
+    fn from(d: SelectIndicesMutBase<'a, T, I>) -> Self {
         Self(d)
     }
 }
 
-impl<'a, T: Send, I: Copy + Clone + PrimInt + ToPrimitive + Sync> ParallelIterator for SelectIndicesIterMutPar<'a, &'a mut [T], I>
+impl<'a, T: 'a + IndexMut<I, Output = O> + ?Sized + Send, I: Clone + Sync, O: 'a + Send> ParallelIterator for SelectIndicesIterMutPar<'a, T, I, O>
 {
-    type Item = &'a mut T;
+    type Item = &'a mut O;
 
     fn drive_unindexed<C>(self, consumer: C) -> C::Result
     where
@@ -30,7 +30,7 @@ impl<'a, T: Send, I: Copy + Clone + PrimInt + ToPrimitive + Sync> ParallelIterat
     }
 }
 
-impl<'a, T: Send, I: Copy + Clone + PrimInt + ToPrimitive + Sync> IndexedParallelIterator for SelectIndicesIterMutPar<'a, &'a mut [T], I>
+impl<'a, T: 'a + IndexMut<I, Output = O> + ?Sized + Send, I: Clone + Sync, O: 'a + Send> IndexedParallelIterator for SelectIndicesIterMutPar<'a, T, I, O>
 {
     fn len(&self) -> usize {
         self.0.indices.len()
@@ -45,7 +45,7 @@ impl<'a, T: Send, I: Copy + Clone + PrimInt + ToPrimitive + Sync> IndexedParalle
     }
 }
 
-impl<'a, T: Send, I: Copy + Clone + PrimInt + ToPrimitive + Sync + Send> SelectIndicesIterMutPar<'a, &'a mut [T], I>
+impl<'a, T: 'a + IndexMut<I, Output = O> + ?Sized + Send, I: Clone + Sync, O: 'a + Send> SelectIndicesIterMutPar<'a, T, I, O>
 {
     /// Return an iterator that outputs a tuple with
     /// each given index and its corresponding element
@@ -65,7 +65,7 @@ impl<'a, T: Send, I: Copy + Clone + PrimInt + ToPrimitive + Sync + Send> SelectI
     /// data.par_select_indices_mut(&[2, 6, 8, 10, 14, 16, 18, 22])
     ///     .indexed()
     ///     .for_each(|(i, x)| {
-    ///         *x = i;
+    ///         *x = *i;
     ///     });
     /// 
     /// assert_eq!(
@@ -80,14 +80,13 @@ impl<'a, T: Send, I: Copy + Clone + PrimInt + ToPrimitive + Sync + Send> SelectI
     /// );
     /// # }
     /// ```
-    pub fn indexed(self) -> Zip<Cloned<Iter<'a, I>>, Self>
+    pub fn indexed(self) -> Zip<Iter<'a, I>, Self>
     {
         return self.0.indices[
             self.0.start
             ..
             self.0.end
             ].par_iter()
-            .cloned() // Remove this so that I does not need Send?
             .zip(self);
     }
 }

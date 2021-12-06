@@ -1,13 +1,12 @@
 use rayon::iter::plumbing::Producer;
-use std::slice::from_raw_parts_mut;
 
-use crate::SelectIndicesBase;
+use crate::{ SelectIndicesBase, SelectIndicesMutBase };
 
-use num_traits::{ PrimInt, ToPrimitive };
+use std::ops::{ Index, IndexMut };
 
-impl<'a, T: Send, I: Copy + Clone + PrimInt + ToPrimitive + Sync> Producer for SelectIndicesBase<'a, &'a mut [T], I>
+impl<'a, T: 'a + IndexMut<I, Output = O> + ?Sized + Send, I: Clone + Sync, O: 'a + Send> Producer for SelectIndicesMutBase<'a, T, I>
 {
-    type Item = &'a mut T;
+    type Item = &'a mut O;
 
     type IntoIter = Self;
 
@@ -16,21 +15,20 @@ impl<'a, T: Send, I: Copy + Clone + PrimInt + ToPrimitive + Sync> Producer for S
     }
 
     fn split_at(self, index: usize) -> (Self, Self) {
-        let data_len = self.data.len();
-        let ptr = self.data.as_mut_ptr();
-        let refs = unsafe { (
-            from_raw_parts_mut(ptr.clone(), data_len),
-            from_raw_parts_mut(ptr, data_len)
+        let ptr: *mut _ = self.data;
+        let refs: (&mut T, &mut T) = unsafe { (
+            &mut *ptr.clone(),
+            &mut *ptr
         ) };
         let split = self.indices.split_at(index); // TODO: Unchecked
         return (
-            SelectIndicesBase {
+            SelectIndicesMutBase {
                 data: refs.0,
                 indices: split.0,
                 start: 0,
                 end: split.0.len(),
             }.into(),
-            SelectIndicesBase {
+            SelectIndicesMutBase {
                 data: refs.1,
                 indices: split.1,
                 start: 0,
@@ -40,9 +38,9 @@ impl<'a, T: Send, I: Copy + Clone + PrimInt + ToPrimitive + Sync> Producer for S
     }
 }
 
-impl<'a, T: Sync, I: Copy + Clone + PrimInt + ToPrimitive + Sync> Producer for SelectIndicesBase<'a, &'a [T], I>
+impl<'a, T: 'a + Index<I, Output = O> + ?Sized + Sync, I: Clone + Sync, O: 'a + Sync> Producer for SelectIndicesBase<'a, T, I>
 {
-    type Item = &'a T;
+    type Item = &'a O;
     type IntoIter = Self;
 
     fn into_iter(self) -> Self::IntoIter {
