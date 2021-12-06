@@ -4,11 +4,12 @@ description = "Iterators for taking multiple shared/exclusive references from a 
 categories = ["rust-patterns", "concurrency"]
 keywords = ["indices", "slice", "split", "rayon"]
 authors = ["TGRCDev"]
-version = "2.1.0"
+version = "2.2.0-alpha"
 edition = "2018"
 license = "Apache-2.0"
 repository = "https://github.com/TGRCdev/select_indices"
 
 [dependencies]
 num-traits = "^0.2"
-rayon = { version = "^1", optional = true }
+rayon = { version = "1", optional = true }
+ndarray = { version = "0.15", optional = true}

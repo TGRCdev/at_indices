@@ -165,9 +165,15 @@ mod slice;
 #[cfg(feature = "rayon")]
 pub mod rayon;
 
+#[cfg(feature = "ndarray")]
+pub mod ndarray;
+
 pub mod prelude {
     pub use super::{SelectIndices, SelectIndicesMut};
 
     #[cfg(feature = "rayon")]
     pub use crate::rayon::prelude::*;
+
+    #[cfg(feature = "ndarray")]
+    pub use crate::ndarray::prelude::*;
 }
