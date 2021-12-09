@@ -63,7 +63,10 @@ where
     fn select_indices<I>(&'a self, indices: &'a [I]) -> SelectIndicesIter<D, Cloned<Iter<'a, I>>>
     where
         D: Index<I>,
-        I: Copy;
+        I: Copy
+    {
+        self.select_with_iter(indices.iter().cloned())
+    }
 
     fn select_with_iter<I>(&'a self, index_iter: I) -> SelectIndicesIter<D, I::IntoIter>
     where

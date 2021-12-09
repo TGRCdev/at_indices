@@ -3,7 +3,9 @@ use crate::SelectIndicesIter;
 
 pub struct SelectIndicesIndexedIter<'a, D, I>
 where
-    D: ?Sized,
+    I: Iterator,
+    I::Item: Copy,
+    D: ?Sized + Index<I::Item>,
 {
     data: &'a D,
     index_iter: I,
@@ -52,6 +54,10 @@ where
 }
 
 impl <'a, D, I> SelectIndicesIter<'a, D, I>
+where
+    I: Iterator,
+    I::Item: Copy,
+    D: ?Sized + Index<I::Item>,
 {
     pub fn indexed(self) -> SelectIndicesIndexedIter<'a, D, I>
     {

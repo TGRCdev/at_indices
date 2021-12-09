@@ -3,6 +3,9 @@
 mod immutable;
 pub use immutable::*;
 
+mod mutable;
+pub use mutable::*;
+
 pub mod prelude {
-    pub use crate::SelectIndices;
+    pub use crate::{ SelectIndices, SelectIndicesMut };
 }

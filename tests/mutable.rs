@@ -1,4 +1,3 @@
-/*
 use select_indices::prelude::*;
 
 #[test]
@@ -36,7 +35,9 @@ fn mutable_out_of_range_panic()
     let indices = [1,2,3];
 
     data.select_indices_mut(&indices) // 3 is out of bounds: should panic
-        .eq(&[1,2,3]);
+        .for_each(|x| {
+            println!("{}", x);
+        })
 }
 
 #[test]
@@ -108,6 +109,7 @@ mod rayon
     }
 }
 
+#[cfg(feature = "ndarray")]
 mod ndarray {
     use select_indices::prelude::*;
     use ndarray::prelude::*;
@@ -152,7 +154,9 @@ mod ndarray {
         let indices = [(1,1),(2,2),(3,3)];
 
         data.select_indices_mut(&indices) // (3,3) is out of bounds: should panic
-            .eq(&[1,2,3]);
+            .for_each(|x| {
+                println!("{}", x);
+            })
     }
 
     #[test]
@@ -239,4 +243,3 @@ mod ndarray {
         }
     }
 }
-*/

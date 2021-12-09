@@ -118,7 +118,9 @@ mod ndarray {
         ];
 
         data.select_indices(&indices) // 3 is out of bounds: should panic
-            .eq(&[1,2,3]);
+            .for_each(|x| {
+                println!("{}", x);
+            })
     }
 
     #[test]
