@@ -1,3 +1,4 @@
+/*
 use select_indices::prelude::*;
 
 #[test]
@@ -238,3 +239,4 @@ mod ndarray {
         }
     }
 }
+*/
