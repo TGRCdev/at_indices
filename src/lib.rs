@@ -1,5 +1,8 @@
 #![feature(generic_associated_types)]
 
+mod one_to_one;
+pub use one_to_one::*;
+
 mod immutable;
 pub use immutable::*;
 

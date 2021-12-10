@@ -43,6 +43,7 @@ fn immutable_indexed()
     });
 }
 
+/*
 #[cfg(feature = "rayon")]
 mod rayon
 {
@@ -76,8 +77,8 @@ mod rayon
             .eq(&[1,2,3]);
     }
 }
+*/
 
-#[cfg(feature = "ndarray")]
 mod ndarray {
     use select_indices::prelude::*;
     use ndarray::prelude::*;
@@ -137,6 +138,7 @@ mod ndarray {
         });
     }
 
+    /*
     #[cfg(feature = "rayon")]
     mod rayon {
         use select_indices::prelude::*;
@@ -196,4 +198,5 @@ mod ndarray {
             });
         }
     }
+    */
 }

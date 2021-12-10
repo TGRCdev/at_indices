@@ -50,7 +50,7 @@ fn mutable_repeated_index_panic()
     data.select_indices_mut(&indices) // Repeated index: should panic
         .eq(&[2,2]);
 }
-
+/*
 #[cfg(feature = "rayon")]
 mod rayon
 {
@@ -108,6 +108,7 @@ mod rayon
             .eq(&[2,2]);
     }
 }
+*/
 
 #[cfg(feature = "ndarray")]
 mod ndarray {
@@ -176,6 +177,7 @@ mod ndarray {
             .eq(&[2,2]);
     }
 
+    /*
     #[cfg(feature = "rayon")]
     mod rayon {
         use select_indices::prelude::*;
@@ -242,4 +244,5 @@ mod ndarray {
                 .eq(&[2,2]);
         }
     }
+    */
 }

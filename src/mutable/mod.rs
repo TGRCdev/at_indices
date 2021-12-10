@@ -5,6 +5,7 @@ use std::{
     collections::HashSet,
     hash::Hash,
 };
+use crate::OneToOne;
 
 pub struct SelectIndicesIterMut<'a, D, I>
 where
@@ -21,7 +22,7 @@ impl<'a, D, I> Iterator for SelectIndicesIterMut<'a, D, I>
 where
     I: Iterator,
     I::Item: Copy + Hash + Eq,
-    D: ?Sized + IndexMut<I::Item>,
+    D: ?Sized + IndexMut<I::Item> + OneToOne,
     D::Output: 'a,
 {
     type Item = &'a mut D::Output;
@@ -40,7 +41,7 @@ impl<'a, D, I> ExactSizeIterator for SelectIndicesIterMut<'a, D, I>
 where
     I: ExactSizeIterator,
     I::Item: Copy + Hash + Eq,
-    D: ?Sized + IndexMut<I::Item>,
+    D: ?Sized + IndexMut<I::Item> + OneToOne,
     D::Output: 'a,
 {}
 
@@ -48,7 +49,7 @@ impl<'a, D, I> DoubleEndedIterator for SelectIndicesIterMut<'a, D, I>
 where
     I: DoubleEndedIterator,
     I::Item: Copy + Hash + Eq,
-    D: ?Sized + IndexMut<I::Item>,
+    D: ?Sized + IndexMut<I::Item> + OneToOne,
     D::Output: 'a,
 {
     fn next_back(&mut self) -> Option<Self::Item> {
@@ -67,7 +68,7 @@ where
 {
     fn select_indices_mut<I>(&'a mut self, indices: &'a [I]) -> SelectIndicesIterMut<D, Cloned<Iter<'a, I>>>
     where
-        D: IndexMut<I>,
+        D: IndexMut<I> + OneToOne,
         I: Copy + Hash + Eq
     {
         self.select_with_iter_mut(indices.iter().cloned())
@@ -77,7 +78,7 @@ where
     where
         I: IntoIterator,
         I::Item: Copy + Hash + Eq,
-        D: IndexMut<I::Item>;
+        D: IndexMut<I::Item> + OneToOne;
 }
 
 impl<'a, D> SelectIndicesMut<'a, D> for D
@@ -88,7 +89,7 @@ where
     where
         I: IntoIterator,
         I::Item: Copy + Hash + Eq,
-        D: IndexMut<I::Item>
+        D: IndexMut<I::Item> + OneToOne,
     {
         SelectIndicesIterMut {
             data: self,
