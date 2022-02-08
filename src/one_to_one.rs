@@ -13,6 +13,7 @@ pub unsafe trait OneToOne {}
 
 unsafe impl<T> OneToOne for [T] {}
 unsafe impl<T, const N: usize> OneToOne for [T; N] {}
+unsafe impl<T> OneToOne for Vec<T> {}
 
 #[cfg(feature = "ndarray")]
 mod ndarray {

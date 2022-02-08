@@ -49,8 +49,7 @@ where
                 {
                     panic!("select_indices_mut was passed duplicate indices!");
                 }
-                println!("{:?}", past_indices);
-                
+
                 let data: &mut Data = unsafe { &mut *data.clone() };
                 &mut data[index]
             })
@@ -79,7 +78,6 @@ where
                 {
                     panic!("select_indices_mut was passed duplicate indices!");
                 }
-                println!("{:?}", past_indices);
 
                 let data: &mut Data = unsafe { &mut *data.clone() };
                 &mut data[index]
@@ -97,7 +95,6 @@ where
                 {
                     panic!("select_indices_mut was passed duplicate indices!");
                 }
-                println!("{:?}", past_indices);
 
                 let data: &mut Data = unsafe { &mut *data.clone() };
                 &mut data[index]
@@ -171,7 +168,6 @@ mod indexed {
                 {
                     panic!("select_indices_mut was passed duplicate indices!");
                 }
-                println!("{:?}", past_indices);
                 
                 let data: &mut Data = unsafe { &mut *data.clone() };
                 (index, &mut data[index])

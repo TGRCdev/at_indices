@@ -48,7 +48,7 @@ fn repeated_index_panic()
     let indices = [1,1];
 
     data.select_indices_mut(&indices) // Repeated index: should panic
-        .eq(&[2,2]);
+        .for_each(|x| println!("{x}") )
 }
 
 #[test]

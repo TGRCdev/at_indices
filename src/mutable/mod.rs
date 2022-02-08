@@ -1,7 +1,5 @@
 use std::{
     ops::IndexMut,
-    slice::Iter,
-    iter::Cloned,
     collections::HashSet,
     hash::Hash,
 };
@@ -62,17 +60,17 @@ where
     }
 }
 
+mod slice;
+pub use self::slice::*;
+
 pub trait SelectIndicesMut<'a, D>
 where
     D: ?Sized,
 {
-    fn select_indices_mut<I>(&'a mut self, indices: &'a [I]) -> SelectIndicesIterMut<D, Cloned<Iter<'a, I>>>
+    fn select_indices_mut<I>(&'a mut self, indices: &'a [I]) -> SelectIndicesSliceIterMut<D, I, Unindexed>
     where
         D: IndexMut<I> + OneToOne,
-        I: Copy + Hash + Eq
-    {
-        self.select_with_iter_mut(indices.iter().cloned())
-    }
+        I: Sized + Copy + Hash + Eq;
     
     fn select_with_iter_mut<I>(&'a mut self, indices: I) -> SelectIndicesIterMut<D, I::IntoIter>
     where
@@ -85,16 +83,36 @@ impl<'a, D> SelectIndicesMut<'a, D> for D
 where
     D: ?Sized,
 {
+    fn select_indices_mut<I>(&'a mut self, indices: &'a [I]) -> SelectIndicesSliceIterMut<D, I, Unindexed>
+    where
+        D: IndexMut<I> + OneToOne,
+        I: Sized + Copy + Hash + Eq,
+    {
+        {
+            let mut values_check = HashSet::with_capacity(indices.len());
+            assert!(indices.iter().all(|index| values_check.insert(index)));
+        }
+
+        SelectIndicesSliceIterMut {
+            data: self,
+            index_iter: indices.into_iter(),
+            _phantom: Default::default(),
+        }
+    }
+
     fn select_with_iter_mut<I>(&'a mut self, indices: I) -> SelectIndicesIterMut<D, I::IntoIter>
     where
         I: IntoIterator,
         I::Item: Copy + Hash + Eq,
         D: IndexMut<I::Item> + OneToOne,
     {
+        let index_iter = indices.into_iter();
+        let size = index_iter.size_hint();
+        let size = size.1.unwrap_or(size.0);
         SelectIndicesIterMut {
             data: self,
-            index_iter: indices.into_iter(),
-            visited: Default::default()
+            index_iter,
+            visited: HashSet::with_capacity(size)
         }
     }
 }
