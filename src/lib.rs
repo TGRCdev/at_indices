@@ -1,5 +1,3 @@
-#![feature(generic_associated_types)]
-
 mod one_to_one;
 pub use one_to_one::*;
 
@@ -11,4 +9,7 @@ pub use mutable::*;
 
 pub mod prelude {
     pub use crate::{ SelectIndices, SelectIndicesMut };
+    
+    #[cfg(feature = "rayon")]
+    pub use crate::{ ParSelectIndices, ParSelectIndicesMut };
 }

@@ -2,6 +2,13 @@
 /// implementations guarantee that each index is associated with
 /// only one output object. This is required to ensure thread
 /// safety and XOR mutability rules with `SelectIndices`.
+/// 
+/// # Safety
+/// By declaring this trait for an Index or IndexMut type, you
+/// are asserting that there is one, and only one, output for
+/// every index. If this assertion is untrue, then using
+/// it for select_indices iterators that require it WILL
+/// break XOR mutability and cause undefined behavior.
 pub unsafe trait OneToOne {}
 
 unsafe impl<T> OneToOne for [T] {}

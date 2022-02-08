@@ -43,7 +43,7 @@ fn immutable_indexed()
     });
 }
 
-/*
+
 #[cfg(feature = "rayon")]
 mod rayon
 {
@@ -71,14 +71,14 @@ mod rayon
     fn par_immutable_out_of_range_panic()
     {
         let data = [1,2,3];
-        let indices = [1,2,3]; 
+        let indices = [1,2,3];
 
-        data.par_select_indices(&indices) // 3 is out of bounds: should panic
-            .eq(&[1,2,3]);
+        println!("{}", data.par_select_indices(&indices).eq(&[2,3,4]));
     }
 }
-*/
 
+
+#[cfg(feature = "ndarray")]
 mod ndarray {
     use select_indices::prelude::*;
     use ndarray::prelude::*;
@@ -138,7 +138,7 @@ mod ndarray {
         });
     }
 
-    /*
+    
     #[cfg(feature = "rayon")]
     mod rayon {
         use select_indices::prelude::*;
@@ -181,7 +181,9 @@ mod ndarray {
             ];
 
             data.par_select_indices(&indices) // 3 is out of bounds: should panic
-                .eq(&[1,2,3]);
+                .for_each(|x| {
+                    println!("{x}");
+                })
         }
 
         #[test]
@@ -198,5 +200,4 @@ mod ndarray {
             });
         }
     }
-    */
 }

@@ -51,7 +51,7 @@ where
 {
     fn next_back(&mut self) -> Option<Self::Item> {
         self.index_iter.next_back().map(|i| {
-            self.data.index(i.clone())
+            self.data.index(i)
         })
     }
 }
@@ -104,4 +104,9 @@ where
 }
 
 mod indexed;
-pub use indexed::*;
+pub use self::indexed::*;
+
+#[cfg(feature = "rayon")]
+mod rayon;
+#[cfg(feature = "rayon")]
+pub use self::rayon::*;

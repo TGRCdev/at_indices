@@ -50,7 +50,7 @@ fn mutable_repeated_index_panic()
     data.select_indices_mut(&indices) // Repeated index: should panic
         .eq(&[2,2]);
 }
-/*
+
 #[cfg(feature = "rayon")]
 mod rayon
 {
@@ -94,7 +94,7 @@ mod rayon
         let indices = [1,2,3];
 
         data.par_select_indices_mut(&indices) // 3 is out of bounds: should panic
-            .eq(&[1,2,3]);
+            .eq(&[2,3,4]);
     }
 
     #[test]
@@ -108,7 +108,6 @@ mod rayon
             .eq(&[2,2]);
     }
 }
-*/
 
 #[cfg(feature = "ndarray")]
 mod ndarray {
@@ -177,7 +176,7 @@ mod ndarray {
             .eq(&[2,2]);
     }
 
-    /*
+    
     #[cfg(feature = "rayon")]
     mod rayon {
         use select_indices::prelude::*;
@@ -224,7 +223,7 @@ mod ndarray {
             let indices = [(1,1),(2,2),(3,3)];
 
             data.par_select_indices_mut(&indices) // (3,3) is out of bounds: should panic
-                .eq(&[1,2,3]);
+                .eq(&[2,3,4]);
         }
 
         #[test]
@@ -243,6 +242,19 @@ mod ndarray {
             data.par_select_indices_mut(&indices) // Repeated index: should panic
                 .eq(&[2,2]);
         }
+
+        #[test]
+        fn par_mutable_indexed()
+        {
+            let mut data = arr2(&[
+                [11, 22, 33, 44, 55, 66, 77, 88],
+                [99, 00, 11, 22, 33, 44, 55, 66],
+                [77, 88, 99, 00, 11, 22, 33, 44],
+            ]);
+            
+            data.par_select_indices_mut(&[(0,4), (2,7), (1,3), (0,0), (2,3)]).indexed().for_each(|(i, x)| {
+                println!("data[{:?}] = {:02}", i, x);
+            });
+        }
     }
-    */
 }

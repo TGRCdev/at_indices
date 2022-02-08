@@ -6,9 +6,10 @@ keywords = ["indices", "slice", "split", "rayon"]
 authors = ["TGRCDev"]
 version = "3.0.0-alpha"
 edition = "2018"
-license = "Apache-2.0"
+license = "LGPL-3.0-or-later"
 repository = "https://github.com/TGRCdev/select_indices"
 
 [dependencies]
 rayon = { version = "1", optional = true }
 ndarray = { version = "0.15", optional = true }
+force-send-sync = { version = "1.0.0", optional = false }
