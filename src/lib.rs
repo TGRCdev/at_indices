@@ -7,6 +7,11 @@ pub use immutable::*;
 mod mutable;
 pub use mutable::*;
 
+pub(crate) mod iter_type {
+    pub struct Unindexed;
+    pub struct Indexed;
+}
+
 pub mod prelude {
     pub use crate::{ SelectIndices, SelectIndicesMut };
     

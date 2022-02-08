@@ -1,16 +1,15 @@
 use rayon::{
     prelude::*,
-    iter::{
-        plumbing::{ UnindexedConsumer, Consumer },
-        Cloned,
-    },
-    slice::Iter,
+    iter::plumbing::{ UnindexedConsumer, Consumer },
 };
 use std::{
     ops::IndexMut,
     hash::Hash,
 };
-use crate::OneToOne;
+use crate::{
+    OneToOne,
+    iter_type::Unindexed,
+};
 use force_send_sync::Sync as ForceSync;
 use std::{
     collections::HashSet,
@@ -103,23 +102,32 @@ where
     }
 }
 
+mod slice;
+pub use self::slice::*;
+
 pub trait ParSelectIndicesMut<'a>
 where
     Self: 'a
 {
-    fn par_select_indices_mut<I>(&'a mut self, indices: &'a [I]) -> ParSelectIndicesIterMut<'a, Self, Cloned<Iter<'a, I>>>
+    fn par_select_indices_mut<I>(&'a mut self, indices: &'a [I]) -> ParSelectIndicesSliceIterMut<'a, Self, I, Unindexed>
     where
-        I: Copy + Sync + Send,
-        Self: IndexMut<I> + OneToOne,
+        Self: IndexMut<I> + OneToOne + Send,
+        Self::Output: Send,
+        I: Sized + Copy + Sync + Hash + Eq,
     {
-        ParSelectIndicesIterMut {
+        {
+            let mut values_check = HashSet::with_capacity(indices.len());
+            assert!(indices.iter().all(|index| values_check.insert(index)));
+        }
+
+        ParSelectIndicesSliceIterMut {
             data: self,
-            index_iter: indices.par_iter().cloned(),
-            past_indices: Default::default(),
+            index_iter: indices.par_iter(),
+            _phantom: Default::default(),
         }
     }
 
-    fn par_select_with_iter<Iter>(&'a mut self, index_iter: Iter) -> ParSelectIndicesIterMut<'a, Self, Iter::Iter>
+    fn par_select_with_iter_mut<Iter>(&'a mut self, index_iter: Iter) -> ParSelectIndicesIterMut<'a, Self, Iter::Iter>
     where
         Iter: IntoParallelIterator<Iter = Iter>,
         Iter::Iter: ParallelIterator,

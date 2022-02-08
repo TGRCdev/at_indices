@@ -3,7 +3,10 @@ use std::{
     collections::HashSet,
     hash::Hash,
 };
-use crate::OneToOne;
+use crate::{
+    OneToOne,
+    iter_type::Unindexed,
+};
 
 pub struct SelectIndicesIterMut<'a, D, I>
 where

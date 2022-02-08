@@ -1,12 +1,12 @@
 use std::{
     slice::Iter,
-    ops::{ IndexMut, Deref },
+    ops::IndexMut,
     marker::PhantomData,
 };
-use crate::OneToOne;
-
-pub struct Unindexed;
-pub struct Indexed;
+use crate::{
+    OneToOne,
+    iter_type::{ Indexed, Unindexed },
+};
 
 pub struct SelectIndicesSliceIterMut<'a, Data, Idx, IndexedType>
 where
@@ -75,8 +75,8 @@ mod indexed {
             self.index_iter.next().map(|index| {
                 let ptr: *mut _ = self.data;
                 (
-                    *index.deref(),
-                    unsafe { ptr.as_mut().unwrap().index_mut(*index.deref()) }
+                    *index,
+                    unsafe { ptr.as_mut().unwrap().index_mut(*index) }
                 )
             })
         }
@@ -95,8 +95,8 @@ mod indexed {
             self.index_iter.next_back().map(|index| {
                 let ptr: *mut _ = self.data;
                 (
-                    *index.deref(),
-                    unsafe { ptr.as_mut().unwrap().index_mut(*index.deref()) }
+                    *index,
+                    unsafe { ptr.as_mut().unwrap().index_mut(*index) }
                 )
             })
         }
@@ -107,20 +107,6 @@ mod indexed {
         Data: ?Sized + IndexMut<Idx> + OneToOne,
         Idx: Sized + Copy,
     {}
-
-    impl<'a, Data, Idx> From<SelectIndicesSliceIterMut<'a, Data, Idx, Unindexed>> for SelectIndicesSliceIterMut<'a, Data, Idx, Indexed>
-    where
-        Data: ?Sized + IndexMut<Idx> + OneToOne,
-        Idx: Sized + Copy,
-    {
-        fn from(iter: SelectIndicesSliceIterMut<'a, Data, Idx, Unindexed>) -> Self {
-            SelectIndicesSliceIterMut {
-                data: iter.data,
-                index_iter: iter.index_iter,
-                _phantom: Default::default(),
-            }
-        }
-    }
 }
 pub use indexed::*;
 
@@ -185,6 +171,10 @@ where
 {
     pub fn indexed(self) -> SelectIndicesSliceIterMut<'a, Data, Idx, Indexed>
     {
-        self.into()
+        SelectIndicesSliceIterMut {
+            data: self.data,
+            index_iter: self.index_iter,
+            _phantom: Default::default(),
+        }
     }
 }
