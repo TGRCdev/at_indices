@@ -1,8 +1,9 @@
 use std::{
     marker::PhantomData,
     collections::HashSet,
-    sync::Mutex,
 };
+#[cfg(feature = "rayon")]
+use std::sync::Mutex;
 use crate::indexed_type::{ Unindexed, Indexed };
 
 pub struct SelectIndicesMutIter<'a, Data, Indices, VisitedSet, IndexedType>

@@ -1,10 +1,8 @@
-use std::{
-    marker::PhantomData,
-    collections::HashSet,
-    sync::Mutex,
-};
+use std::marker::PhantomData;
 use crate::indexed_type::{ Unindexed, Indexed };
-use crate::iter_type::{ Parallel, Sequential };
+use crate::iter_type::Sequential;
+#[cfg(feature = "rayon")]
+use crate::iter_type::Parallel;
 
 pub struct SelectIndicesIter<'a, Data, Indices, IterType, IndexedType>
 where

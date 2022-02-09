@@ -43,7 +43,7 @@ pub trait SelectIndices<'a> {
     {
         SeqSelectIndicesIter {
             data: self,
-            indices: indices.into_iter().copied(),
+            indices: indices.iter().copied(),
             _phantom: Default::default(),
         }
     }
@@ -80,7 +80,7 @@ pub trait SelectIndicesMut<'a>
             assert!(indices.iter().all(|index| values_check.insert(index)));
         }
 
-        unsafe { self.select_with_iter_mut_unchecked(indices.into_iter().copied()) }
+        unsafe { self.select_with_iter_mut_unchecked(indices.iter().copied()) }
     }
     
     fn select_with_iter_mut<Indices>(&'a mut self, indices: Indices) -> SeqSelectIndicesMutIter<Self, Indices::IntoIter, Unindexed>

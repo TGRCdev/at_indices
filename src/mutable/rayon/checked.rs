@@ -29,7 +29,7 @@ mod unindexed {
             let ptr: ForceSync<*mut _> = unsafe { ForceSync::new(self.data) };
             let visited_refs = self.visited_refs;
             self.indices.map(|index| {
-                let data = unsafe { ptr.clone().as_mut().unwrap() };
+                let data = unsafe { (*ptr).as_mut().unwrap() };
                 
                 let val_ref = data.index_mut(index);
 
@@ -57,7 +57,7 @@ mod unindexed {
             let ptr: ForceSync<*mut _> = unsafe { ForceSync::new(self.data) };
             let visited_refs = self.visited_refs;
             self.indices.map(|index| {
-                let data = unsafe { ptr.clone().as_mut().unwrap() };
+                let data = unsafe { (*ptr).as_mut().unwrap() };
                 
                 let val_ref = data.index_mut(index);
 
@@ -73,7 +73,7 @@ mod unindexed {
             let ptr: ForceSync<*mut _> = unsafe { ForceSync::new(self.data) };
             let visited_refs = self.visited_refs;
             self.indices.map(|index| {
-                let data = unsafe { ptr.clone().as_mut().unwrap() };
+                let data = unsafe { (*ptr).as_mut().unwrap() };
                 
                 let val_ref = data.index_mut(index);
 
@@ -105,7 +105,7 @@ mod indexed {
             let ptr: ForceSync<*mut _> = unsafe { ForceSync::new(self.data) };
             let visited_refs = self.visited_refs;
             self.indices.map(|index| {
-                let data = unsafe { ptr.clone().as_mut().unwrap() };
+                let data = unsafe { (*ptr).as_mut().unwrap() };
                 
                 let val_ref = data.index_mut(index);
 
@@ -133,7 +133,7 @@ mod indexed {
             let ptr: ForceSync<*mut _> = unsafe { ForceSync::new(self.data) };
             let visited_refs = self.visited_refs;
             self.indices.map(|index| {
-                let data = unsafe { ptr.clone().as_mut().unwrap() };
+                let data = unsafe { (*ptr).as_mut().unwrap() };
                 
                 let val_ref = data.index_mut(index);
 
@@ -149,7 +149,7 @@ mod indexed {
             let ptr: ForceSync<*mut _> = unsafe { ForceSync::new(self.data) };
             let visited_refs = self.visited_refs;
             self.indices.map(|index| {
-                let data = unsafe { ptr.clone().as_mut().unwrap() };
+                let data = unsafe { (*ptr).as_mut().unwrap() };
                 
                 let val_ref = data.index_mut(index);
 

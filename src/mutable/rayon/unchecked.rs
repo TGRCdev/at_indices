@@ -28,7 +28,7 @@ mod unindexed {
         {
             let ptr: ForceSync<*mut _> = unsafe { ForceSync::new(self.data) };
             self.indices.map(|index| {
-                let data = unsafe { ptr.clone().as_mut().unwrap() };
+                let data = unsafe { (*ptr).as_mut().unwrap() };
                 &mut data[index]
             }).drive_unindexed(consumer)
         }
@@ -48,7 +48,7 @@ mod unindexed {
         fn drive<C: Consumer<Self::Item>>(self, consumer: C) -> C::Result {
             let ptr: ForceSync<*mut _> = unsafe { ForceSync::new(self.data) };
             self.indices.map(|index| {
-                let data = unsafe { ptr.clone().as_mut().unwrap() };
+                let data = unsafe { (*ptr).as_mut().unwrap() };
                 &mut data[index]
             }).drive(consumer)
         }
@@ -56,7 +56,7 @@ mod unindexed {
         fn with_producer<CB: rayon::iter::plumbing::ProducerCallback<Self::Item>>(self, callback: CB) -> CB::Output {
             let ptr: ForceSync<*mut _> = unsafe { ForceSync::new(self.data) };
             self.indices.map(|index| {
-                let data = unsafe { ptr.clone().as_mut().unwrap() };
+                let data = unsafe { (*ptr).as_mut().unwrap() };
                 &mut data[index]
             }).with_producer(callback)
         }
@@ -80,7 +80,7 @@ mod indexed {
         {
             let ptr: ForceSync<*mut _> = unsafe { ForceSync::new(self.data) };
             self.indices.map(|index| {
-                let data = unsafe { ptr.clone().as_mut().unwrap() };
+                let data = unsafe { (*ptr).as_mut().unwrap() };
                 (index, &mut data[index])
             }).drive_unindexed(consumer)
         }
@@ -100,7 +100,7 @@ mod indexed {
         fn drive<C: rayon::iter::plumbing::Consumer<Self::Item>>(self, consumer: C) -> C::Result {
             let ptr: ForceSync<*mut _> = unsafe { ForceSync::new(self.data) };
             self.indices.map(|index| {
-                let data = unsafe { ptr.clone().as_mut().unwrap() };
+                let data = unsafe { (*ptr).as_mut().unwrap() };
                 (index, &mut data[index])
             }).drive(consumer)
         }
@@ -108,7 +108,7 @@ mod indexed {
         fn with_producer<CB: rayon::iter::plumbing::ProducerCallback<Self::Item>>(self, callback: CB) -> CB::Output {
             let ptr: ForceSync<*mut _> = unsafe { ForceSync::new(self.data) };
             self.indices.map(|index| {
-                let data = unsafe { ptr.clone().as_mut().unwrap() };
+                let data = unsafe { (*ptr).as_mut().unwrap() };
                 (index, &mut data[index])
             }).with_producer(callback)
         }
