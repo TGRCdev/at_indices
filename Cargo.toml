@@ -6,7 +6,7 @@ keywords = ["indices", "slice", "split", "rayon"]
 authors = ["TGRCDev"]
 version = "3.0.1-alpha-2"
 edition = "2018"
-license = "LGPL-3.0-or-later"
+license = "MPL-2.0"
 repository = "https://github.com/TGRCdev/select_indices"
 
 [dependencies]
