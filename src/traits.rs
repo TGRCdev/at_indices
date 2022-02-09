@@ -70,9 +70,17 @@ pub trait SelectIndicesMut<'a>
         }
     }
 
+    unsafe fn select_indices_mut_unchecked<Idx>(&'a mut self, indices: &'a [Idx]) -> SeqSelectIndicesUncheckedMutIter<Self, Copied<Iter<'a, Idx>>, Unindexed>
+    where
+        Self:IndexMut<Idx>,
+        Idx: Copy,
+    {
+        self.select_with_iter_mut_unchecked(indices.iter().copied())
+    }
+
     fn select_indices_mut<Idx>(&'a mut self, indices: &'a [Idx]) -> SeqSelectIndicesUncheckedMutIter<Self, Copied<Iter<'a, Idx>>, Unindexed>
     where
-        Self: IndexMut<Idx> + OneToOne,
+        Self: OneToOne<Idx>,
         Idx: Sized + Eq + Hash + Copy,
     {
         {
@@ -166,7 +174,7 @@ mod rayon {
 
         unsafe fn par_select_indices_mut_unchecked<Idx>(&'a mut self, indices: &'a [Idx]) -> ParSelectIndicesUncheckedMutIter<Self, Copied<Iter<'a, Idx>>, Unindexed>
         where
-            Self: IndexMut<Idx> + OneToOne,
+            Self: OneToOne<Idx>,
             Idx: Copy + Sync + Send,
         {
             self.par_select_with_iter_mut_unchecked(indices.into_par_iter().copied())
@@ -174,7 +182,7 @@ mod rayon {
 
         fn par_select_indices_mut<Idx>(&'a mut self, indices: &'a [Idx]) -> ParSelectIndicesUncheckedMutIter<Self, Copied<Iter<'a, Idx>>, Unindexed>
         where
-            Self: IndexMut<Idx> + OneToOne,
+            Self: OneToOne<Idx>,
             Idx: Copy + Hash + Eq + Sync + Send,
         {
             {
@@ -183,7 +191,7 @@ mod rayon {
             }
     
             // Safety: We just checked that all indices are unique. As long as OneToOne has
-            // not been erroneously implemented (OneToOne should never produce the same output
+            // not been erroneously implemented (OneToOne types should never produce the same output
             // for two indices), this should be safe.
             unsafe { self.par_select_with_iter_mut_unchecked(indices.into_par_iter().copied()) }
         }

@@ -1,4 +1,3 @@
-use std::ops::IndexMut;
 use crate::{
     traits::OneToOne,
     indexed_type::{ Indexed, Unindexed },
@@ -10,7 +9,7 @@ mod unindexed {
 
     impl<'a, Data, Indices> Iterator for SeqSelectIndicesUncheckedMutIter<'a, Data, Indices, Unindexed>
     where
-        Data: ?Sized + IndexMut<Indices::Item> + OneToOne,
+        Data: ?Sized + OneToOne<Indices::Item>,
         Data::Output: 'a,
         Indices: Iterator,
         Indices::Item: Sized + Copy,
@@ -31,7 +30,7 @@ mod unindexed {
 
     impl<'a, Data, Indices> DoubleEndedIterator for SeqSelectIndicesUncheckedMutIter<'a, Data, Indices, Unindexed>
     where
-        Data: ?Sized + IndexMut<Indices::Item> + OneToOne,
+        Data: ?Sized + OneToOne<Indices::Item>,
         Data::Output: 'a,
         Indices: DoubleEndedIterator,
         Indices::Item: Sized + Copy,
@@ -46,7 +45,7 @@ mod unindexed {
 
     impl<'a, Data, Indices> ExactSizeIterator for SeqSelectIndicesUncheckedMutIter<'a, Data, Indices, Unindexed>
     where
-        Data: ?Sized + IndexMut<Indices::Item> + OneToOne,
+        Data: ?Sized + OneToOne<Indices::Item>,
         Data::Output: 'a,
         Indices: Iterator,
         Indices::Item: Sized + Copy,
@@ -57,7 +56,7 @@ mod indexed {
 
     impl<'a, Data, Indices> Iterator for SeqSelectIndicesUncheckedMutIter<'a, Data, Indices, Indexed>
     where
-        Data: ?Sized + IndexMut<Indices::Item> + OneToOne,
+        Data: ?Sized + OneToOne<Indices::Item>,
         Data::Output: 'a,
         Indices: Iterator,
         Indices::Item: Sized + Copy,
@@ -81,7 +80,7 @@ mod indexed {
 
     impl<'a, Data, Indices> DoubleEndedIterator for SeqSelectIndicesUncheckedMutIter<'a, Data, Indices, Indexed>
     where
-        Data: ?Sized + IndexMut<Indices::Item> + OneToOne,
+        Data: ?Sized + OneToOne<Indices::Item>,
         Data::Output: 'a,
         Indices: DoubleEndedIterator,
         Indices::Item: Sized + Copy,
@@ -99,7 +98,7 @@ mod indexed {
 
     impl<'a, Data, Indices> ExactSizeIterator for SeqSelectIndicesUncheckedMutIter<'a, Data, Indices, Indexed>
     where
-        Data: ?Sized + IndexMut<Indices::Item> + OneToOne,
+        Data: ?Sized + OneToOne<Indices::Item>,
         Data::Output: 'a,
         Indices: ExactSizeIterator,
         Indices::Item: Sized + Copy,
@@ -157,8 +156,13 @@ fn speed_test()
 
     println!("Slice Iterator");
     time_iter(|| data.select_indices_mut(&indices));
+    println!();
 
-    println!("Unchecked Iterator");
+    println!("Unchecked Generic");
     time_iter(|| unsafe { data.select_with_iter_mut_unchecked(indices.iter().cloned()) });
+    println!();
+
+    println!("Unchecked Slice");
+    time_iter(|| unsafe { data.select_indices_mut_unchecked(&indices) });
     println!();
 }

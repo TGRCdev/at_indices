@@ -7,7 +7,6 @@ use rayon::{
     prelude::*,
     iter::plumbing::{ Consumer, UnindexedConsumer },
 };
-use std::ops::IndexMut;
 use force_send_sync::Sync as ForceSync;
 
 mod unindexed {
@@ -17,7 +16,7 @@ mod unindexed {
     where
         Indices: ParallelIterator,
         Indices::Item: Copy,
-        Data: Send + IndexMut<Indices::Item> + OneToOne,
+        Data: Send + OneToOne<Indices::Item>,
         Data::Output: 'a + Send,
     {
         type Item = &'a mut Data::Output;
@@ -46,7 +45,7 @@ mod unindexed {
     where
         Indices: IndexedParallelIterator,
         Indices::Item: Copy,
-        Data: Send + IndexMut<Indices::Item> + OneToOne,
+        Data: Send + OneToOne<Indices::Item>,
         Data::Output: 'a + Send,
     {
         fn len(&self) -> usize {
@@ -93,7 +92,7 @@ mod indexed {
     where
         Indices: ParallelIterator,
         Indices::Item: Copy,
-        Data: Send + IndexMut<Indices::Item> + OneToOne,
+        Data: Send + OneToOne<Indices::Item>,
         Data::Output: 'a + Send,
     {
         type Item = (Indices::Item, &'a mut Data::Output);
@@ -122,7 +121,7 @@ mod indexed {
     where
         Indices: IndexedParallelIterator,
         Indices::Item: Copy,
-        Data: Send + IndexMut<Indices::Item> + OneToOne,
+        Data: Send + OneToOne<Indices::Item>,
         Data::Output: 'a + Send,
     {
         fn len(&self) -> usize {
