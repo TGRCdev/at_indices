@@ -35,9 +35,7 @@ fn out_of_range_panic()
     let indices = [1,2,3];
 
     data.select_indices_mut(&indices) // 3 is out of bounds: should panic
-        .for_each(|x| {
-            println!("{x}");
-        })
+        .for_each(|x| println!("{x}"));
 }
 
 #[test]
@@ -48,7 +46,17 @@ fn repeated_index_panic()
     let indices = [1,1];
 
     data.select_indices_mut(&indices) // Repeated index: should panic
-        .for_each(|x| println!("{x}") )
+        .for_each(|x| println!("{x}"));
+}
+
+#[test]
+#[should_panic]
+fn repeated_index_from_iter_panic()
+{
+    let mut data = [1,2,3];
+
+    data.select_with_iter_mut(std::iter::repeat(2).take(2))
+        .for_each(|x| println!("{x}"));
 }
 
 #[test]

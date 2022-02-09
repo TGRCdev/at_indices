@@ -1,114 +1,110 @@
-use std::{
-    slice::Iter,
-    ops::IndexMut,
-    marker::PhantomData,
-};
+use std::ops::IndexMut;
 use crate::{
-    OneToOne,
-    iter_type::{ Indexed, Unindexed },
+    traits::OneToOne,
+    indexed_type::{ Indexed, Unindexed },
 };
-
-pub struct SelectIndicesSliceIterMut<'a, Data, Idx, IndexedType>
-where
-    Data: ?Sized + IndexMut<Idx> + OneToOne,
-    Idx: Sized + Copy,
-{
-    pub(crate) data: &'a mut Data,
-    pub(crate) index_iter: Iter<'a, Idx>,
-    pub(crate) _phantom: PhantomData<IndexedType>,
-}
+use super::iter::SeqSelectIndicesUncheckedMutIter;
 
 mod unindexed {
     use super::*;
 
-    impl<'a, Data, Idx> Iterator for SelectIndicesSliceIterMut<'a, Data, Idx, Unindexed>
+    impl<'a, Data, Indices> Iterator for SeqSelectIndicesUncheckedMutIter<'a, Data, Indices, Unindexed>
     where
-        Data: ?Sized + IndexMut<Idx> + OneToOne,
-        Idx: Sized + Copy,
+        Data: ?Sized + IndexMut<Indices::Item> + OneToOne,
+        Data::Output: 'a,
+        Indices: Iterator,
+        Indices::Item: Sized + Copy,
     {
         type Item = &'a mut Data::Output;
 
         fn next(&mut self) -> Option<Self::Item> {
-            self.index_iter.next().map(|&index| {
+            self.indices.next().map(|index| {
                 let ptr: *mut _ = self.data;
                 unsafe { ptr.as_mut().unwrap().index_mut(index) }
             })
         }
 
         fn size_hint(&self) -> (usize, Option<usize>) {
-            return self.index_iter.size_hint()
+            self.indices.size_hint()
         }
     }
 
-    impl<'a, Data, Idx> DoubleEndedIterator for SelectIndicesSliceIterMut<'a, Data, Idx, Unindexed>
+    impl<'a, Data, Indices> DoubleEndedIterator for SeqSelectIndicesUncheckedMutIter<'a, Data, Indices, Unindexed>
     where
-        Data: ?Sized + IndexMut<Idx> + OneToOne,
-        Idx: Sized + Copy,
+        Data: ?Sized + IndexMut<Indices::Item> + OneToOne,
+        Data::Output: 'a,
+        Indices: DoubleEndedIterator,
+        Indices::Item: Sized + Copy,
     {
         fn next_back(&mut self) -> Option<Self::Item> {
-            self.index_iter.next_back().map(|&index| {
+            self.indices.next_back().map(|index| {
                 let ptr: *mut _ = self.data;
                 unsafe { ptr.as_mut().unwrap().index_mut(index) }
             })
         }
     }
 
-    impl<'a, Data, Idx> ExactSizeIterator for SelectIndicesSliceIterMut<'a, Data, Idx, Unindexed>
+    impl<'a, Data, Indices> ExactSizeIterator for SeqSelectIndicesUncheckedMutIter<'a, Data, Indices, Unindexed>
     where
-        Data: ?Sized + IndexMut<Idx> + OneToOne,
-        Idx: Sized + Copy,
+        Data: ?Sized + IndexMut<Indices::Item> + OneToOne,
+        Data::Output: 'a,
+        Indices: Iterator,
+        Indices::Item: Sized + Copy,
     {}
 }
-pub use unindexed::*;
-
 mod indexed {
     use super::*;
 
-    impl<'a, Data, Idx> Iterator for SelectIndicesSliceIterMut<'a, Data, Idx, Indexed>
+    impl<'a, Data, Indices> Iterator for SeqSelectIndicesUncheckedMutIter<'a, Data, Indices, Indexed>
     where
-        Data: ?Sized + IndexMut<Idx> + OneToOne,
-        Idx: Sized + Copy,
+        Data: ?Sized + IndexMut<Indices::Item> + OneToOne,
+        Data::Output: 'a,
+        Indices: Iterator,
+        Indices::Item: Sized + Copy,
     {
-        type Item = (Idx, &'a mut Data::Output);
+        type Item = (Indices::Item, &'a mut Data::Output);
 
         fn next(&mut self) -> Option<Self::Item> {
-            self.index_iter.next().map(|index| {
+            self.indices.next().map(|index| {
                 let ptr: *mut _ = self.data;
                 (
-                    *index,
-                    unsafe { ptr.as_mut().unwrap().index_mut(*index) }
+                    index,
+                    unsafe { ptr.as_mut().unwrap().index_mut(index) }
                 )
             })
         }
 
         fn size_hint(&self) -> (usize, Option<usize>) {
-            self.index_iter.size_hint()
+            self.indices.size_hint()
         }
     }
 
-    impl<'a, Data, Idx> DoubleEndedIterator for SelectIndicesSliceIterMut<'a, Data, Idx, Indexed>
+    impl<'a, Data, Indices> DoubleEndedIterator for SeqSelectIndicesUncheckedMutIter<'a, Data, Indices, Indexed>
     where
-        Data: ?Sized + IndexMut<Idx> + OneToOne,
-        Idx: Sized + Copy,
+        Data: ?Sized + IndexMut<Indices::Item> + OneToOne,
+        Data::Output: 'a,
+        Indices: DoubleEndedIterator,
+        Indices::Item: Sized + Copy,
     {
         fn next_back(&mut self) -> Option<Self::Item> {
-            self.index_iter.next_back().map(|index| {
+            self.indices.next_back().map(|index| {
                 let ptr: *mut _ = self.data;
                 (
-                    *index,
-                    unsafe { ptr.as_mut().unwrap().index_mut(*index) }
+                    index,
+                    unsafe { ptr.as_mut().unwrap().index_mut(index) }
                 )
             })
         }
     }
 
-    impl<'a, Data, Idx> ExactSizeIterator for SelectIndicesSliceIterMut<'a, Data, Idx, Indexed>
+    impl<'a, Data, Indices> ExactSizeIterator for SeqSelectIndicesUncheckedMutIter<'a, Data, Indices, Indexed>
     where
-        Data: ?Sized + IndexMut<Idx> + OneToOne,
-        Idx: Sized + Copy,
+        Data: ?Sized + IndexMut<Indices::Item> + OneToOne,
+        Data::Output: 'a,
+        Indices: ExactSizeIterator,
+        Indices::Item: Sized + Copy,
     {}
 }
-pub use indexed::*;
 
 #[test]
 #[ignore]
@@ -116,7 +112,7 @@ fn speed_test()
 {
     use rand::prelude::*;
     use std::time::Instant;
-    use crate::mutable::SelectIndicesMut;
+    use crate::prelude::*;
     use std::collections::HashSet;
 
     const DATA_LEN: usize = 100000;
@@ -161,20 +157,8 @@ fn speed_test()
 
     println!("Slice Iterator");
     time_iter(|| data.select_indices_mut(&indices));
-    println!();
-}
 
-impl<'a, Data, Idx> SelectIndicesSliceIterMut<'a, Data, Idx, Unindexed>
-where
-    Data: ?Sized + IndexMut<Idx> + OneToOne,
-    Idx: Sized + Copy,
-{
-    pub fn indexed(self) -> SelectIndicesSliceIterMut<'a, Data, Idx, Indexed>
-    {
-        SelectIndicesSliceIterMut {
-            data: self.data,
-            index_iter: self.index_iter,
-            _phantom: Default::default(),
-        }
-    }
+    println!("Unchecked Iterator");
+    time_iter(|| unsafe { data.select_with_iter_mut_unchecked(indices.iter().cloned()) });
+    println!();
 }

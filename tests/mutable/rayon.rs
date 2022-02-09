@@ -51,3 +51,14 @@ fn repeated_index_panic()
     data.par_select_indices_mut(&indices) // Repeated index: should panic
         .eq(&[2,2]);
 }
+
+#[test]
+#[should_panic]
+fn repeated_index_from_iter_panic()
+{
+    let mut data = [1,2,3];
+    let index_iter = rayon::iter::repeat(2).take(2);
+
+    data.par_select_with_iter_mut(index_iter)
+        .for_each(|x| println!("{x}"));
+}

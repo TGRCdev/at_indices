@@ -1,21 +1,21 @@
 use std::ops::Index;
 use crate::{
-    indexed_type::Indexed,
+    indexed_type::Unindexed,
 };
 use super::iter::SeqSelectIndicesIter;
 
-impl<'a, Data, Indices> Iterator for SeqSelectIndicesIter<'a, Data, Indices, Indexed>
+impl<'a, Data, Indices> Iterator for SeqSelectIndicesIter<'a, Data, Indices, Unindexed>
 where
     Data: ?Sized + Index<Indices::Item>,
     Data::Output: 'a,
     Indices: Iterator,
     Indices::Item: Copy,
 {
-    type Item = (Indices::Item, &'a Data::Output);
+    type Item = &'a Data::Output;
 
     fn next(&mut self) -> Option<Self::Item> {
         self.indices.next().map(|index| {
-            (index, &self.data[index])
+            &self.data[index]
         })
     }
 
@@ -24,7 +24,7 @@ where
     }
 }
 
-impl<'a, Data, Indices> DoubleEndedIterator for SeqSelectIndicesIter<'a, Data, Indices, Indexed>
+impl<'a, Data, Indices> DoubleEndedIterator for SeqSelectIndicesIter<'a, Data, Indices, Unindexed>
 where
     Data: ?Sized + Index<Indices::Item>,
     Data::Output: 'a,
@@ -33,12 +33,12 @@ where
 {
     fn next_back(&mut self) -> Option<Self::Item> {
         self.indices.next_back().map(|index| {
-            (index, &self.data[index])
+            &self.data[index]
         })
     }
 }
 
-impl<'a, Data, Indices> ExactSizeIterator for SeqSelectIndicesIter<'a, Data, Indices, Indexed>
+impl<'a, Data, Indices> ExactSizeIterator for SeqSelectIndicesIter<'a, Data, Indices, Unindexed>
 where
     Data: ?Sized + Index<Indices::Item>,
     Data::Output: 'a,
