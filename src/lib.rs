@@ -1,10 +1,6 @@
-mod one_to_one;
+pub mod immutable;
 
-mod traits;
-
-mod immutable;
-
-mod mutable;
+pub mod mutable;
 
 pub(crate) mod indexed_type {
     pub struct Unindexed;
@@ -13,18 +9,22 @@ pub(crate) mod indexed_type {
 
 pub(crate) mod iter_type {
     pub struct Sequential;
+    #[cfg(feature = "rayon")]
     pub struct Parallel;
 }
 
 pub mod prelude {
-    pub use crate::traits::{
-        SelectIndices,
-        SelectIndicesMut,
+    pub use crate::{
+        immutable::traits::SelectIndices,
+        mutable::traits::{
+            OneToOne,
+            SelectIndicesMut,
+        },
     };
 
     #[cfg(feature = "rayon")]
-    pub use crate::traits::{
-        ParSelectIndices,
-        ParSelectIndicesMut
+    pub use crate::{
+        immutable::traits::ParSelectIndices,
+        mutable::traits::ParSelectIndicesMut,
     };
 }

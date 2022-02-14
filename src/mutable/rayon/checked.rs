@@ -1,7 +1,7 @@
 use crate::{
+    prelude::*,
     mutable::iter::ParSelectIndicesMutIter,
     indexed_type::{ Unindexed, Indexed },
-    traits::OneToOne,
 };
 use rayon::{
     prelude::*,
