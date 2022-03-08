@@ -4,6 +4,7 @@ use crate::iter_type::Sequential;
 #[cfg(feature = "rayon")]
 use crate::iter_type::Parallel;
 
+/// Immutably iterates, with a list of indices, through an [`Index`](std::ops::Index) collection.
 pub struct SelectIndicesIter<'a, Data, Indices, IterType, IndexedType>
 where
     Data: ?Sized,
@@ -15,6 +16,8 @@ where
 
 impl<'a, Data, Indices, VisitedSet> SelectIndicesIter<'a, Data, Indices, VisitedSet, Unindexed>
 {
+    /// Converts the iterator's return type from
+    /// `&Item` to `(Index, &Item)`
     pub fn indexed(self) -> SelectIndicesIter<'a, Data, Indices, VisitedSet, Indexed>
     {
         SelectIndicesIter {
@@ -25,6 +28,8 @@ impl<'a, Data, Indices, VisitedSet> SelectIndicesIter<'a, Data, Indices, Visited
     }
 }
 
+/// Return type for [`select_indices`](crate::prelude::SelectIndices::select_indices).
 pub type SeqSelectIndicesIter<'a, Data, Indices, IndexedType> = SelectIndicesIter<'a, Data, Indices, Sequential, IndexedType>;
 #[cfg(feature = "rayon")]
+/// Return type for [`par_select_indices`](crate::prelude::ParSelectIndices::par_select_indices).
 pub type ParSelectIndicesIter<'a, Data, Indices, IndexedType> = SelectIndicesIter<'a, Data, Indices, Parallel, IndexedType>;

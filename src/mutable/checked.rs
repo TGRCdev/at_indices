@@ -26,6 +26,11 @@ mod unindexed {
                 val_ref
             })
         }
+
+        fn size_hint(&self) -> (usize, Option<usize>)
+        {
+            self.indices.size_hint()
+        }
     }
 
     impl<'a, Data, Indices> ExactSizeIterator for SeqSelectIndicesMutIter<'a, Data, Indices, Unindexed>

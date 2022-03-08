@@ -6,6 +6,7 @@ use std::{
 use std::sync::Mutex;
 use crate::indexed_type::{ Unindexed, Indexed };
 
+/// Mutably iterates, with a set of indices, through a [`OneToOne`](crate::prelude::OneToOne) collection
 pub struct SelectIndicesMutIter<'a, Data, Indices, VisitedSet, IndexedType>
 where
     Data: ?Sized,
@@ -18,6 +19,8 @@ where
 
 impl<'a, Data, Indices, VisitedSet> SelectIndicesMutIter<'a, Data, Indices, VisitedSet, Unindexed>
 {
+    /// Converts the iterator's return type from
+    /// `&mut Item` to `(Index, &mut Item)`
     pub fn indexed(self) -> SelectIndicesMutIter<'a, Data, Indices, VisitedSet, Indexed>
     {
         SelectIndicesMutIter {
@@ -29,6 +32,7 @@ impl<'a, Data, Indices, VisitedSet> SelectIndicesMutIter<'a, Data, Indices, Visi
     }
 }
 
+/// Return type for [`select_indices_mut_unchecked`](crate::prelude::SelectIndicesMut::select_indices_mut_unchecked).
 pub type SelectIndicesUncheckedMutIter<'a, Data, Indices, IndexedType> = SelectIndicesMutIter<'a, Data, Indices, (), IndexedType>;
 
 pub type SeqSelectIndicesMutIter<'a, Data, Indices, IndexedType> = SelectIndicesMutIter<'a, Data, Indices, HashSet<usize>, IndexedType>;
