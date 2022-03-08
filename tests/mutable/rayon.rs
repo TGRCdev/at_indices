@@ -31,6 +31,36 @@ fn select_indices()
 }
 
 #[test]
+fn select_indices_unchecked()
+{
+    let mut data = [
+        0,0,9,0,0,
+        0,0,9,0,0,
+        0,0,9,0,0,
+        0,0,9,0,0,
+        0,0,9,0,0,
+    ];
+
+    let indices = [7,17,2,12,22];
+
+    unsafe { data.par_select_indices_mut_unchecked(&indices) }
+        .enumerate().for_each(|(i, x)| {
+            *x = i+1;
+        });
+
+    assert_eq!(
+        data,
+        [
+            0,0,3,0,0,
+            0,0,1,0,0,
+            0,0,4,0,0,
+            0,0,2,0,0,
+            0,0,5,0,0,
+        ]
+    )
+}
+
+#[test]
 #[should_panic]
 fn out_of_range_panic()
 {

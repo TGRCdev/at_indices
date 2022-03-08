@@ -17,7 +17,7 @@ where
 impl<'a, Data, Indices, VisitedSet> SelectIndicesIter<'a, Data, Indices, VisitedSet, Unindexed>
 {
     /// Converts the iterator's return type from
-    /// `&Item` to `(Index, &Item)`
+    /// `&Item` to `(IndexType, &Item)`
     pub fn indexed(self) -> SelectIndicesIter<'a, Data, Indices, VisitedSet, Indexed>
     {
         SelectIndicesIter {

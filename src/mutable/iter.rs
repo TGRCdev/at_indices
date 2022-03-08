@@ -20,7 +20,7 @@ where
 impl<'a, Data, Indices, VisitedSet> SelectIndicesMutIter<'a, Data, Indices, VisitedSet, Unindexed>
 {
     /// Converts the iterator's return type from
-    /// `&mut Item` to `(Index, &mut Item)`
+    /// `&mut Item` to `(IndexType, &mut Item)`
     pub fn indexed(self) -> SelectIndicesMutIter<'a, Data, Indices, VisitedSet, Indexed>
     {
         SelectIndicesMutIter {
