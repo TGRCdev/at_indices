@@ -28,8 +28,8 @@ impl<'a, Data, Indices, VisitedSet> SelectIndicesIter<'a, Data, Indices, Visited
     }
 }
 
-/// Return type for [`select_indices`](crate::prelude::SelectIndices::select_indices).
+/// Return type for [`select_indices`](crate::SelectIndices::select_indices).
 pub type SeqSelectIndicesIter<'a, Data, Indices, IndexedType> = SelectIndicesIter<'a, Data, Indices, Sequential, IndexedType>;
 #[cfg(feature = "rayon")]
-/// Return type for [`par_select_indices`](crate::prelude::ParSelectIndices::par_select_indices).
+/// Return type for [`par_select_indices`](crate::ParSelectIndices::par_select_indices).
 pub type ParSelectIndicesIter<'a, Data, Indices, IndexedType> = SelectIndicesIter<'a, Data, Indices, Parallel, IndexedType>;

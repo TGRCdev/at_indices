@@ -23,9 +23,9 @@ use crate::{
 /// 1. For every valid index, there is only one output.
 /// 2. Invalid indices should panic and not return multiple references
 ///     to one object.
-/// 2. When mutably indexed, the type never reads any other
-///     indexable objects ([`HashMap`s](std::collection::HashMap) are not `OneToOne` because of this).
-/// 3. When mutably indexed, the type does not mutate itself. It
+/// 3. When mutably indexed, the type never reads any other
+///     indexable objects ([`HashMap`s](std::collections::HashMap) are not `OneToOne` because of this).
+/// 4. When mutably indexed, the type does not mutate itself. It
 ///     should only return a mutable index to an object held by the
 ///     type.
 pub unsafe trait OneToOne<Idx> : IndexMut<Idx> {}

@@ -171,7 +171,7 @@ fn speed_test()
 {
     use rand::prelude::*;
     use std::time::Instant;
-    use crate::prelude::*;
+    use crate::*;
     use std::collections::HashSet;
 
     const DATA_LEN: usize = 100000;
